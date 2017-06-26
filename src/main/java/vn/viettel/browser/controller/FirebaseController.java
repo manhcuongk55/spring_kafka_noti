@@ -1,5 +1,6 @@
 package vn.viettel.browser.controller;
 
+import org.elasticsearch.action.search.SearchResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -88,6 +89,22 @@ public class FirebaseController {
     public String checkStatusSendCategory()
             throws org.json.simple.parser.ParseException, JSONException {
         return firebaseService.checkStatusSending();
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/get_devices_by_version", method = RequestMethod.GET, produces = "application/json")
+    public String sendMessToDevice(@RequestParam (value = "device", defaultValue = "*") String device,
+                                        @RequestParam (value = "version" , defaultValue = "1.0.0") String version)
+            throws org.json.simple.parser.ParseException, JSONException {
+        return firebaseService.getListDeviceByVersion(device,version).toString();
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/count_devices_by_version", method = RequestMethod.GET, produces = "application/json")
+    public String countDeviceByVersion(@RequestParam (value = "device", defaultValue = "*") String device,
+                                @RequestParam (value = "version" , defaultValue = "1.0.0") String version)
+            throws org.json.simple.parser.ParseException, JSONException {
+        return firebaseService.countNumberOfDeviceByVersion(device,version).toString();
     }
 
 }
