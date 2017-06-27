@@ -1,8 +1,8 @@
 package vn.viettel.browser.controller;
 
-import org.elasticsearch.action.search.SearchResponse;
+import javax.annotation.Resource;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,24 +11,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import vn.viettel.browser.service.FirebaseService;
-
-
-import javax.annotation.Resource;
+import vn.viettel.browser.service.NotificationService;
+import vn.viettel.browser.ultils.ElasticsearchUtils;
 
 @RestController
 @RequestMapping("/user")
-public class FirebaseController {
+public class NotificationController {
 
     @Resource
-    private FirebaseService firebaseService;
+    private NotificationService firebaseService;
 
     @CrossOrigin
     @RequestMapping(value = "/send_mess", method = RequestMethod.POST)
     @ResponseBody
     public String createNotifi(@RequestBody String notification) throws Exception {
         System.out.println("@RequestBody : " + notification);
-       return firebaseService.sendNotoToListDeviceIdsByCategoryId(notification);
+       return firebaseService.sendNotoToListDeviceByCategoryId(notification);
     }
     @CrossOrigin
     @RequestMapping(value = "/notification_clicks", method = RequestMethod.GET)
@@ -50,7 +48,7 @@ public class FirebaseController {
     @RequestMapping(value = "/get_list_devices", method = RequestMethod.GET, produces="application/json")
     public String getTotalnotificationclicks()
             throws JSONException {
-        return firebaseService.getListDeviceIdsFromAllCategories().toString();
+        return ElasticsearchUtils.getListDeviceIdsFromAllCategories().toString();
     }
     @CrossOrigin
     @RequestMapping(value = "/list_deviceId_by_category", method = RequestMethod.GET, produces = "application/json")
@@ -75,7 +73,7 @@ public class FirebaseController {
     public String getTopArticleByCategory(@RequestParam (value = "categoryId" , defaultValue = "2") String categoryId)
             throws org.json.simple.parser.ParseException {
         int catId = Integer.parseInt(categoryId);
-        return firebaseService.getHotArticleRecentlyByCategory(catId).toString();
+        return ElasticsearchUtils.getHotArticleRecentlyByCategory(catId).toString();
     }
 
     @CrossOrigin
@@ -84,27 +82,4 @@ public class FirebaseController {
             throws org.json.simple.parser.ParseException {
         return firebaseService.getHotArticleRecently().toString();
     }
-    @CrossOrigin
-    @RequestMapping(value = "/checkStatus", method = RequestMethod.GET, produces = "application/json")
-    public String checkStatusSendCategory()
-            throws org.json.simple.parser.ParseException, JSONException {
-        return firebaseService.checkStatusSending();
-    }
-
-    @CrossOrigin
-    @RequestMapping(value = "/get_devices_by_version", method = RequestMethod.GET, produces = "application/json")
-    public String sendMessToDevice(@RequestParam (value = "device", defaultValue = "*") String device,
-                                        @RequestParam (value = "version" , defaultValue = "1.0.0") String version)
-            throws org.json.simple.parser.ParseException, JSONException {
-        return firebaseService.getListDeviceByVersion(device,version).toString();
-    }
-
-    @CrossOrigin
-    @RequestMapping(value = "/count_devices_by_version", method = RequestMethod.GET, produces = "application/json")
-    public String countDeviceByVersion(@RequestParam (value = "device", defaultValue = "*") String device,
-                                @RequestParam (value = "version" , defaultValue = "1.0.0") String version)
-            throws org.json.simple.parser.ParseException, JSONException {
-        return firebaseService.countNumberOfDeviceByVersion(device,version).toString();
-    }
-
 }
