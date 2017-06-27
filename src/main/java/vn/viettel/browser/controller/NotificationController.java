@@ -82,4 +82,10 @@ public class NotificationController {
             throws org.json.simple.parser.ParseException {
         return firebaseService.getHotArticleRecently().toString();
     }
+    @CrossOrigin
+    @RequestMapping(value = "/get_total_devices_by_cate", method = RequestMethod.GET, produces = "application/json")
+    public int getTotalDeviesByCate(@RequestParam (value = "categoryId" , defaultValue = "2") String categoryId)
+            throws org.json.simple.parser.ParseException {
+        return elasticsearchUtils.getTotalDeviceByCategoryId(categoryId);
+    }
 }

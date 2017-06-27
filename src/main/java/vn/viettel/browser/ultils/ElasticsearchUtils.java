@@ -2,6 +2,8 @@ package vn.viettel.browser.ultils;
 
 import com.google.gson.Gson;
 
+import antlr.collections.List;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -11,6 +13,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.joda.time.DateTime;
@@ -193,7 +196,7 @@ public class ElasticsearchUtils {
  	}
  	
  // Hàm lấy danh sách device theo version App
- 	public  SearchResponse getListDeviceByVersion(String device, String version) throws JSONException {
+ 	public  JSONArray getListDeviceByVersion(String device, String version) throws JSONException {
  		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
  		if (device.equals("android") || device.equals("ios") ) {
  			boolQuery.must(QueryBuilders.termsQuery("deviceType", device))
@@ -207,7 +210,11 @@ public class ElasticsearchUtils {
  				.addAggregation(AggregationBuilders.terms("devices").field("notificationId.keyword").size(10000));
 
  		SearchResponse response = query.setSize(0).execute().actionGet();
- 		return response;
+ 		JSONObject response1 = new JSONObject(response.toString());
+ 		JSONObject aggregations = (JSONObject)response1.get("aggregations");
+ 		JSONObject results = (JSONObject)aggregations.get("devices");
+ 		JSONArray listDevices = results.getJSONArray("buckets");
+ 		return listDevices;
  	}
 
  	// Hàm tính tổng thiết bị theo version
@@ -227,7 +234,7 @@ public class ElasticsearchUtils {
  		SearchResponse response = query.setSize(0).execute().actionGet();
  		return response;
  	}
-	public  int getTotalDeviceByCategoryId(String categoryId) {
+	public int getTotalDeviceByCategoryId(String categoryId) {
 		int totalDevice = 0;
 		try {
 			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories().get("data");
