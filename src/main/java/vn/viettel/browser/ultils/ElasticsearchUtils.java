@@ -51,7 +51,7 @@ public class ElasticsearchUtils {
 		}
 	}
 
-	public  JSONObject getListDeviceIdsFromAllCategories() {
+	public  JSONObject getListDeviceIdsFromAllCategories(String device) {
 		org.json.JSONObject data = new org.json.JSONObject();
 		JSONObject results = new JSONObject();
 		JSONObject rows = new JSONObject();
@@ -59,10 +59,17 @@ public class ElasticsearchUtils {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 
-		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
-				.must(QueryBuilders.termsQuery("function.keyword", "postListArticlesByCategor"))
-				.must(QueryBuilders.queryStringQuery(FILTER_TERM))
-				.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		if (device.equals("*")) {
+			boolQuery.must(QueryBuilders.termsQuery("function.keyword", "postListArticlesByCategor"))
+					.must(QueryBuilders.queryStringQuery(FILTER_TERM))
+					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+		} else {
+			boolQuery.must(QueryBuilders.termsQuery("function.keyword", "postListArticlesByCategor"))
+					.must(QueryBuilders.queryStringQuery(FILTER_TERM))
+					.must(QueryBuilders.termQuery("deviceType", device))
+					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+		}
 
 		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v2").setTypes("logs")
 				.setQuery(boolQuery)
@@ -231,10 +238,10 @@ public class ElasticsearchUtils {
  		SearchResponse response = query.setSize(0).execute().actionGet();
  		return response;
  	}
-	public int getTotalDeviceByCategoryId(String categoryId) {
+	public int getTotalDeviceByCategoryId(String categoryId, String device) {
 		int totalDevice = 0;
 		try {
-			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories(device).get("data");
 			Iterator<?> keys = input.keys();
 			/* Process to group firebase Id to category */
 			while (keys.hasNext()) {
@@ -253,7 +260,7 @@ public class ElasticsearchUtils {
 	public  int getTotalDevice() {
 		int totalDevice = 0;
 		try {
-			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories("*").get("data");
 			Iterator<?> keys = input.keys();
 			/* Process to group firebase Id to category */
 			while (keys.hasNext()) {

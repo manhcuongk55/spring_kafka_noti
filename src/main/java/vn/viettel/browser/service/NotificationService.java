@@ -38,7 +38,7 @@ public class NotificationService {
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		try {
-			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories("*").get("data");
 
 			Iterator<?> keys = input.keys();
 
@@ -88,7 +88,7 @@ public class NotificationService {
 						System.out.println("@results_android : " + results);
 					}
 					total++;
-					JedisUtils.set("sent_total", total + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId));
+					JedisUtils.set("sent_total", total + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId,"*"));
 				}
 			}
 			JedisUtils.set("done", 1 + "");
@@ -108,7 +108,7 @@ public class NotificationService {
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		try {
-			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories("*").get("data");
 
 			Iterator<?> keys = input.keys();
 
@@ -207,7 +207,7 @@ public class NotificationService {
 		return response;
 	}
 
-	public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size) {
+	public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size, String device) {
 		JSONObject results = new JSONObject();
 		JSONObject metadata = new JSONObject();
 		ArrayList<String> data = new ArrayList<>();
@@ -216,7 +216,7 @@ public class NotificationService {
 		Date date = new Date();
 
 		try {
-			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories(device).get("data");
 			int total = 0;
 			Iterator<?> keys = input.keys();
 
