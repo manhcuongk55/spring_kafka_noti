@@ -377,6 +377,42 @@ public class FirebaseService {
 		return reponses.toString();
 	}
 
+	// Hàm lấy danh sách device theo version App
+	public SearchResponse getListDeviceByVersion(String device, String version) throws JSONException {
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		if (device.equals("android") || device.equals("ios") ) {
+			boolQuery.must(QueryBuilders.termsQuery("deviceType", device))
+					.must(QueryBuilders.termsQuery("appVersion", version));
+		} else {
+			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
+		}
+
+		SearchRequestBuilder query = this.esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+				.setQuery(boolQuery)
+				.addAggregation(AggregationBuilders.terms("devices").field("notificationId.keyword").size(10000));
+
+		SearchResponse response = query.setSize(0).execute().actionGet();
+		return response;
+	}
+
+	// Hàm tính tổng thiết bị theo version
+	public SearchResponse countNumberOfDeviceByVersion(String device, String version) throws JSONException {
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		if (device.equals("android") || device.equals("ios") ) {
+			boolQuery.must(QueryBuilders.termsQuery("deviceType", device))
+					.must(QueryBuilders.termsQuery("appVersion", version));
+		} else {
+			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
+		}
+
+		SearchRequestBuilder query = this.esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+				.setQuery(boolQuery)
+				.addAggregation(AggregationBuilders.cardinality("devices").field("notificationId.keyword"));
+
+		SearchResponse response = query.setSize(0).execute().actionGet();
+		return response;
+	}
+
 	public String sendMessBoxToAll(String message) throws JSONException {
 		int total = 0;
 		JSONObject reponses = new JSONObject();
