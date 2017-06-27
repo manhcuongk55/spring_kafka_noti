@@ -64,7 +64,7 @@ public class ElasticsearchUtils {
 				.must(QueryBuilders.queryStringQuery(FILTER_TERM))
 				.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
 
-		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v2").setTypes("logs")
 				.setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_CAT_KEY).field("parameters.keyword")
 						.size(20).subAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY)
@@ -202,7 +202,7 @@ public class ElasticsearchUtils {
  			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
  		}
 
- 		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+ 		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v2").setTypes("logs")
  				.setQuery(boolQuery)
  				.addAggregation(AggregationBuilders.terms("devices").field("notificationId.keyword").size(10000));
 
@@ -220,7 +220,7 @@ public class ElasticsearchUtils {
  			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
  		}
 
- 		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+ 		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v2").setTypes("logs")
  				.setQuery(boolQuery)
  				.addAggregation(AggregationBuilders.cardinality("devices").field("notificationId.keyword"));
 
