@@ -17,14 +17,14 @@ import vn.viettel.browser.ultils.ElasticsearchUtils;
 @RestController
 @RequestMapping("/user")
 public class NotificationController {
-
+	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
     @Resource
     private NotificationService firebaseService;
 
     @CrossOrigin
     @RequestMapping(value = "/send_mess", method = RequestMethod.POST)
     @ResponseBody
-    public String createNotifi(@RequestBody String notification) throws Exception {
+    public String sendNotifi(@RequestBody String notification) throws Exception {
         System.out.println("@RequestBody : " + notification);
        return firebaseService.sendNotoToListDeviceByCategoryId(notification);
     }
@@ -39,7 +39,7 @@ public class NotificationController {
     @CrossOrigin
     @RequestMapping(value = "/send_mess_all", method = RequestMethod.POST)
     @ResponseBody
-    public String createNotifiToAll(@RequestBody String notification) throws Exception {
+    public String sendNotifiToAll(@RequestBody String notification) throws Exception {
         System.out.println("@RequestBody : " + notification);
        return firebaseService.sendNotiToAll(notification);
     }
@@ -48,7 +48,7 @@ public class NotificationController {
     @RequestMapping(value = "/get_list_devices", method = RequestMethod.GET, produces="application/json")
     public String getTotalnotificationclicks()
             throws JSONException {
-        return ElasticsearchUtils.getListDeviceIdsFromAllCategories().toString();
+        return elasticsearchUtils.getListDeviceIdsFromAllCategories().toString();
     }
     @CrossOrigin
     @RequestMapping(value = "/list_deviceId_by_category", method = RequestMethod.GET, produces = "application/json")
@@ -73,7 +73,7 @@ public class NotificationController {
     public String getTopArticleByCategory(@RequestParam (value = "categoryId" , defaultValue = "2") String categoryId)
             throws org.json.simple.parser.ParseException {
         int catId = Integer.parseInt(categoryId);
-        return ElasticsearchUtils.getHotArticleRecentlyByCategory(catId).toString();
+        return elasticsearchUtils.getHotArticleRecentlyByCategory(catId).toString();
     }
 
     @CrossOrigin

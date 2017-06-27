@@ -7,12 +7,14 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.stereotype.Service;
 
 import vn.viettel.browser.ultils.ElasticsearchUtils;
 import vn.viettel.browser.ultils.FireBaseUtils;
 
+@Service
 public class MessageService {
-
+	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
 	public String sendMessBoxToListDeviceIdsByVersion(String message) throws JSONException {
 		int total = 0;
 		JSONObject reponses = new JSONObject();
@@ -20,7 +22,7 @@ public class MessageService {
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		try {
-			JSONObject input = (JSONObject) ElasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
 
 			Iterator<?> keys = input.keys();
 
@@ -91,7 +93,7 @@ public class MessageService {
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		try {
-			JSONObject input = (JSONObject) ElasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
 
 			Iterator<?> keys = input.keys();
 

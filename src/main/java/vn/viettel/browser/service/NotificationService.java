@@ -30,7 +30,7 @@ import vn.viettel.browser.ultils.JedisUtils;
 public class NotificationService {
 
 	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
-
+	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
 	public String sendNotoToListDeviceByCategoryId(String message) throws JSONException {
 		int total = 0;
 		JSONObject reponses = new JSONObject();
@@ -38,7 +38,7 @@ public class NotificationService {
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		try {
-			JSONObject input = (JSONObject) ElasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
 
 			Iterator<?> keys = input.keys();
 
@@ -88,7 +88,7 @@ public class NotificationService {
 						System.out.println("@results_android : " + results);
 					}
 					total++;
-					JedisUtils.set("sent_total", total + "_" + ElasticsearchUtils.getTotalDeviceByCategoryId(categoryId));
+					JedisUtils.set("sent_total", total + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId));
 				}
 			}
 			JedisUtils.set("done", 1 + "");
@@ -108,7 +108,7 @@ public class NotificationService {
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		try {
-			JSONObject input = (JSONObject) ElasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
 
 			Iterator<?> keys = input.keys();
 
@@ -154,7 +154,7 @@ public class NotificationService {
 					System.out.println("@results_android : " + results);
 				}
 				total++;
-				JedisUtils.set("sent_total", total + "_" + ElasticsearchUtils.getTotalDevice());
+				JedisUtils.set("sent_total", total + "_" + elasticsearchUtils.getTotalDevice());
 			}
 			JedisUtils.set("done", 1 + "");
 		} catch (Exception e) {
@@ -183,7 +183,7 @@ public class NotificationService {
 		} else if (device.equals("android")) {
 			boolQuery.mustNot(QueryBuilders.wildcardQuery("notificationId.keyword", "ios*"));
 		}
-		SearchRequestBuilder query = ElasticsearchUtils.esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+		SearchRequestBuilder query = elasticsearchUtils.esClient.prepareSearch("browser_logging_v3").setTypes("logs")
 				.setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms("top_devices").field("notificationId.keyword"));
 		SearchResponse response = query.setSize(10).execute().actionGet();
@@ -199,7 +199,7 @@ public class NotificationService {
 
 			BoolQueryBuilder boolQuery = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("display", "1"))
 					.must(QueryBuilders.rangeQuery("time_post").from(from / 1000));
-			SearchRequestBuilder query = ElasticsearchUtils.esClient.prepareSearch("br_article_v4").setTypes("article")
+			SearchRequestBuilder query = elasticsearchUtils.esClient.prepareSearch("br_article_v4").setTypes("article")
 					.setQuery(boolQuery).addAggregation(AggregationBuilders.terms("hot_tags").field("tags").size(1)
 							.subAggregation(AggregationBuilders.topHits("top_article_of_tags").size(1)));
 			response = query.setSize(0).execute().actionGet();
@@ -216,7 +216,7 @@ public class NotificationService {
 		Date date = new Date();
 
 		try {
-			JSONObject input = (JSONObject) ElasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories().get("data");
 			int total = 0;
 			Iterator<?> keys = input.keys();
 
@@ -256,7 +256,7 @@ public class NotificationService {
 				.filter(QueryBuilders.termsQuery("function.keyword", NOTIFICATION_CLICK_FUNCTION))
 				.filter(QueryBuilders.rangeQuery("@timestamp").from(from).to(to));
 
-		SearchRequestBuilder query = ElasticsearchUtils.esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+		SearchRequestBuilder query = elasticsearchUtils.esClient.prepareSearch("browser_logging_v3").setTypes("logs")
 				.setQuery(boolQuery).addAggregation(AggregationBuilders.dateHistogram("notifications_clicked_by_day")
 						.field("@timestamp").dateHistogramInterval(DateHistogramInterval.DAY));
 

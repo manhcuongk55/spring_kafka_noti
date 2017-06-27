@@ -36,11 +36,11 @@ public class ElasticsearchUtils {
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
 	private static final String START_DATE = "2017-05-17T00:00:00";
 	static Settings settings = Settings.builder().put("cluster.name", "vbrowser").put("client.transport.sniff", true).build();
-	public static TransportClient esClient = new PreBuiltTransportClient(settings);
+	public TransportClient esClient = new PreBuiltTransportClient(settings);
 
 	public ElasticsearchUtils() {
 		try {
-			ElasticsearchUtils.esClient
+			this.esClient
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.233"), 9300))
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.232"), 9300))
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.234"), 9300))
@@ -51,7 +51,7 @@ public class ElasticsearchUtils {
 		}
 	}
 
-	public static JSONObject getListDeviceIdsFromAllCategories() {
+	public  JSONObject getListDeviceIdsFromAllCategories() {
 		org.json.JSONObject data = new org.json.JSONObject();
 		JSONObject results = new JSONObject();
 		JSONObject rows = new JSONObject();
@@ -158,7 +158,7 @@ public class ElasticsearchUtils {
     }
 
  // Function lấy bài hot trong vòng 1h gần đây
- 	public static SearchResponse getHotArticleRecentlyByCategory(int categoryID) {
+ 	public  SearchResponse getHotArticleRecentlyByCategory(int categoryID) {
  		SearchResponse response = new SearchResponse();
  		DateTime dateFrom = DateTimeUtils.getPreviousTime("hour", 1);
  		if (dateFrom != null) {
@@ -193,7 +193,7 @@ public class ElasticsearchUtils {
  	}
  	
  // Hàm lấy danh sách device theo version App
- 	public static SearchResponse getListDeviceByVersion(String device, String version) throws JSONException {
+ 	public  SearchResponse getListDeviceByVersion(String device, String version) throws JSONException {
  		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
  		if (device.equals("android") || device.equals("ios") ) {
  			boolQuery.must(QueryBuilders.termsQuery("deviceType", device))
@@ -211,7 +211,7 @@ public class ElasticsearchUtils {
  	}
 
  	// Hàm tính tổng thiết bị theo version
- 	public static SearchResponse countNumberOfDeviceByVersion(String device, String version) throws JSONException {
+ 	public  SearchResponse countNumberOfDeviceByVersion(String device, String version) throws JSONException {
  		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
  		if (device.equals("android") || device.equals("ios") ) {
  			boolQuery.must(QueryBuilders.termsQuery("deviceType", device))
@@ -227,7 +227,7 @@ public class ElasticsearchUtils {
  		SearchResponse response = query.setSize(0).execute().actionGet();
  		return response;
  	}
-	public static int getTotalDeviceByCategoryId(String categoryId) {
+	public  int getTotalDeviceByCategoryId(String categoryId) {
 		int totalDevice = 0;
 		try {
 			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories().get("data");
@@ -246,7 +246,7 @@ public class ElasticsearchUtils {
 		return totalDevice;
 	}
 
-	public static int getTotalDevice() {
+	public  int getTotalDevice() {
 		int totalDevice = 0;
 		try {
 			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories().get("data");

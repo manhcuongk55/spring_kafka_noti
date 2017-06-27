@@ -4,9 +4,11 @@ import javax.annotation.Resource;
 
 import org.json.JSONException;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import vn.viettel.browser.service.MessageService;
@@ -15,7 +17,7 @@ import vn.viettel.browser.ultils.ElasticsearchUtils;
 @RestController
 @RequestMapping("/user")
 public class MessageController {
-	
+	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
 	@Resource
     private MessageService messService;
 	
@@ -24,7 +26,7 @@ public class MessageController {
     public String sendMessToDevice(@RequestParam (value = "device", defaultValue = "*") String device,
                                         @RequestParam (value = "version" , defaultValue = "1.0.0") String version)
             throws org.json.simple.parser.ParseException, JSONException {
-        return ElasticsearchUtils.getListDeviceByVersion(device,version).toString();
+        return elasticsearchUtils.getListDeviceByVersion(device,version).toString();
     }
 
     @CrossOrigin
@@ -32,7 +34,21 @@ public class MessageController {
     public String countDeviceByVersion(@RequestParam (value = "device", defaultValue = "*") String device,
                                 @RequestParam (value = "version" , defaultValue = "1.0.0") String version)
             throws org.json.simple.parser.ParseException, JSONException {
-        return ElasticsearchUtils.countNumberOfDeviceByVersion(device,version).toString();
+        return elasticsearchUtils.countNumberOfDeviceByVersion(device,version).toString();
     }
-
+    @CrossOrigin
+    @RequestMapping(value = "/send_mess_box", method = RequestMethod.POST)
+    @ResponseBody
+    public String sendMess(@RequestBody String message) throws Exception {
+        System.out.println("@RequestBody : " + message);
+       return messService.sendMessBoxToListDeviceIdsByVersion(message);
+    }
+    @CrossOrigin
+    @RequestMapping(value = "/send_mess_box_all", method = RequestMethod.POST)
+    @ResponseBody
+    public String sendMessToAll(@RequestBody String message) throws Exception {
+        System.out.println("@RequestBody : " + message);
+       return messService.sendMessBoxToAll(message);
+    }
+    
 }

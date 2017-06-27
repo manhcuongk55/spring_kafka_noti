@@ -28,6 +28,7 @@ public class ScheduledAutoSendNotiTasks {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     @Resource
     private NotificationService firebaseService;
+    ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
     @Scheduled(fixedRate = 5000)
     public void reportCurrentTime() {
         log.info("The time is now {}", dateFormat.format(new Date()) + "======> " + firebaseService.getHotArticleRecently().toString());
@@ -43,7 +44,7 @@ public class ScheduledAutoSendNotiTasks {
  			BoolQueryBuilder boolQuery = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("display", "1"))
  					.must(QueryBuilders.termQuery("category.id", categoryID))
  					.must(QueryBuilders.rangeQuery("time_post").from(from / 1000));
- 			SearchRequestBuilder query = ElasticsearchUtils.esClient.prepareSearch("br_article_v4").setTypes("article")
+ 			SearchRequestBuilder query = elasticsearchUtils.esClient.prepareSearch("br_article_v4").setTypes("article")
  					.setQuery(boolQuery).addAggregation(AggregationBuilders.terms("hot_tags").field("tags").size(1)
  							.subAggregation(AggregationBuilders.topHits("top_article_of_tags").size(1)));
  			response = query.setSize(0).execute().actionGet();
