@@ -48,15 +48,16 @@ public class NotificationController {
     @RequestMapping(value = "/get_list_devices", method = RequestMethod.GET, produces="application/json")
     public String getTotalnotificationclicks()
             throws JSONException {
-        return elasticsearchUtils.getListDeviceIdsFromAllCategories().toString();
+        return elasticsearchUtils.getListDeviceIdsFromAllCategories("*").toString();
     }
     @CrossOrigin
     @RequestMapping(value = "/list_deviceId_by_category", method = RequestMethod.GET, produces = "application/json")
     public String getListDeviceIdByCategory(@RequestParam (value = "id", defaultValue = "2") String id,
                                             @RequestParam (value = "from" , defaultValue = "0") String from,
-                                            @RequestParam (value = "size" , defaultValue = "20") String size)
+                                            @RequestParam (value = "size" , defaultValue = "20") String size,
+                                            @RequestParam (value = "device" , defaultValue = "*") String device)
             throws org.json.simple.parser.ParseException {
-        return firebaseService.getListDeviceIdsByCategoryId(id, from, size).toString();
+        return firebaseService.getListDeviceIdsByCategoryId(id, from, size,device).toString();
     }
 
     @CrossOrigin
@@ -84,8 +85,9 @@ public class NotificationController {
     }
     @CrossOrigin
     @RequestMapping(value = "/get_total_devices_by_cate", method = RequestMethod.GET, produces = "application/json")
-    public int getTotalDeviesByCate(@RequestParam (value = "categoryId" , defaultValue = "2") String categoryId)
+    public int getTotalDeviesByCate(@RequestParam (value = "categoryId" , defaultValue = "2") String categoryId,
+                                    @RequestParam (value = "device" , defaultValue = "*") String device)
             throws org.json.simple.parser.ParseException {
-        return elasticsearchUtils.getTotalDeviceByCategoryId(categoryId);
+        return elasticsearchUtils.getTotalDeviceByCategoryId(categoryId,device);
     }
 }
