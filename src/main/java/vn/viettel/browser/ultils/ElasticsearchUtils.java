@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -18,6 +19,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.joda.time.DateTime;
@@ -31,6 +33,7 @@ import com.google.gson.Gson;
  * Created by giang on 03/04/2017.
  */
 public class ElasticsearchUtils {
+	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
 	private static final String DEVICE_NOTIFICATION_CAT_KEY = "categories";
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
@@ -272,5 +275,83 @@ public class ElasticsearchUtils {
 		}
 		return totalDevice;
 	}
+	public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size, String device) {
+		JSONObject results = new JSONObject();
+		JSONObject metadata = new JSONObject();
+		ArrayList<String> data = new ArrayList<>();
+		String categoryId = "categoryId:" + id;
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
 
+		try {
+			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories(device).get("data");
+			int total = 0;
+			Iterator<?> keys = input.keys();
+
+			/* Process to group firebase Id to category */
+			while (keys.hasNext()) {
+				String key = (String) keys.next();
+				JSONObject obj = (JSONObject) input.get(key);
+				if (obj.has(categoryId)) {
+					data.add(key);
+					total++;
+				}
+			}
+			ArrayList<String> res = data.stream().skip(Integer.parseInt(from)).limit(Integer.parseInt(size))
+					.collect(Collectors.toCollection(ArrayList::new));
+
+			metadata.put("date", dateFormat.format(date));
+			metadata.put("name", categoryId);
+			metadata.put("total", total);
+			metadata.put("size", Integer.parseInt(size));
+			metadata.put("from", Integer.parseInt(from));
+			results.put("data", res);
+			results.put("metadata", metadata);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return results;
+	}
+	public String getNumberOfNotificationsClickedByTime(String from, String to, String size) {
+		if (from.equals("")) {
+			from = DateTimeUtils.getPreviousDate(30);
+		}
+		if (to.equals("")) {
+			to = DateTimeUtils.getTimeNow();
+		}
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
+				.filter(QueryBuilders.termsQuery("function.keyword", NOTIFICATION_CLICK_FUNCTION))
+				.filter(QueryBuilders.rangeQuery("@timestamp").from(from).to(to));
+
+		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+				.setQuery(boolQuery).addAggregation(AggregationBuilders.dateHistogram("notifications_clicked_by_day")
+						.field("@timestamp").dateHistogramInterval(DateHistogramInterval.DAY));
+
+		SearchResponse response = query.setSize(Integer.parseInt(size)).execute().actionGet();
+		return response.toString();
+	}
+
+	public String getTotalNotificationClicks(String from, String to, String device) {
+		if (from.equals("")) {
+			from = DateTimeUtils.getPreviousDate(7);
+		}
+		if (to.equals("")) {
+			to = DateTimeUtils.getTimeNow();
+		}
+
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
+				.must(QueryBuilders.termsQuery("function.keyword", NOTIFICATION_CLICK_FUNCTION))
+				.must(QueryBuilders.rangeQuery("@timestamp").from(from).to(to));
+
+		if (device.equals("ios")) {
+			boolQuery.must(QueryBuilders.wildcardQuery("notificationId.keyword", "ios*"));
+		} else if (device.equals("android")) {
+			boolQuery.mustNot(QueryBuilders.wildcardQuery("notificationId.keyword", "ios*"));
+		}
+		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+				.setQuery(boolQuery)
+				.addAggregation(AggregationBuilders.terms("top_devices").field("notificationId.keyword"));
+		SearchResponse response = query.setSize(10).execute().actionGet();
+		return response.toString();
+	}
 }

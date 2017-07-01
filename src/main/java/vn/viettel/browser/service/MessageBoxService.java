@@ -13,9 +13,10 @@ import vn.viettel.browser.ultils.ElasticsearchUtils;
 import vn.viettel.browser.ultils.FireBaseUtils;
 
 @Service
-public class MessageService {
+public class MessageBoxService {
 	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
-	public String sendMessBoxToListDeviceIdsByVersion(String message) throws JSONException {
+
+	public String sendMessBoxToListDeviceIdsByVersion1(String message) throws JSONException {
 		int total = 0;
 		JSONObject reponses = new JSONObject();
 		JSONArray devices = new JSONArray();
@@ -85,6 +86,62 @@ public class MessageService {
 		reponses.put("total", total);
 		return reponses.toString();
 	}
+
+	/*public String sendMessBoxToListDeviceIdsByVersion(String message) throws JSONException {
+
+		int total = 0;
+		JSONObject reponses = new JSONObject();
+		JSONArray devices = new JSONArray();
+		reponses.put("message", message);
+		Map<String, String> ids = new HashMap<>();
+		JSONObject mess = new JSONObject(message);
+		JSONObject results = new JSONObject();
+		JSONObject data = new JSONObject();
+		JSONObject notification = new JSONObject();
+		String version_android = "";
+		String version_ios = "";
+		try {
+			version_android = mess.getString("version_android");
+			version_ios = mess.getString("version_ios");
+			data.put("content", mess.getString("content"));
+			data.put("title", mess.getString("title"));
+			results.put("data", data);
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        JSONArray listIos = elasticsearchUtils.getListDeviceByVersion("android", version_ios);
+        for (int i = 0; i< listIos.length(); i++){
+        	try {
+    			notification.put("body", mess.getString("title"));
+    			// notification.put("badge",0);
+    			notification.put("sound", "default");
+    			results.put("notification", notification);
+    			results.put("mutable_content", true);
+    			key.replace("ios", "");
+    			results.put("to", key);
+    			System.out.println("key:ios " + key);
+    			String rp = FireBaseUtils.pushNotificationToSingleDevice(results);
+    			ids.put("ios_" + key, rp);
+    			System.out.println("@results_ios : " + results);
+    		} catch (JSONException e1) {
+    			// TODO Auto-generated catch block
+    			e1.printStackTrace();
+    		}
+        }
+
+		results.put("to", key);
+		System.out.println("key:android " + key);
+		String rp = FireBaseUtils.pushNotificationToSingleDevice(results);
+		ids.put("android_" + key, rp);
+		System.out.println("@results_android : " + results);
+
+		total++;
+		devices.put(ids);
+		reponses.put("devices", devices);
+		reponses.put("total", total);
+		return reponses.toString();
+	}*/
 
 	public String sendMessBoxToAll(String message) throws JSONException {
 		int total = 0;

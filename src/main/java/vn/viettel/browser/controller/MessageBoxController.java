@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import vn.viettel.browser.service.MessageService;
+import vn.viettel.browser.service.MessageBoxService;
 import vn.viettel.browser.ultils.ElasticsearchUtils;
 
 @RestController
 @RequestMapping("/user")
-public class MessageController {
+public class MessageBoxController {
 	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
 	@Resource
-    private MessageService messService;
+    private MessageBoxService messService;
 	
 	@CrossOrigin
     @RequestMapping(value = "/get_devices_by_version", method = RequestMethod.GET, produces = "application/json")
@@ -41,7 +41,7 @@ public class MessageController {
     @ResponseBody
     public String sendMess(@RequestBody String message) throws Exception {
         System.out.println("@RequestBody : " + message);
-       return messService.sendMessBoxToListDeviceIdsByVersion(message);
+       return messService.sendMessBoxToListDeviceIdsByVersion1(message);
     }
     @CrossOrigin
     @RequestMapping(value = "/send_mess_box_all", method = RequestMethod.POST)

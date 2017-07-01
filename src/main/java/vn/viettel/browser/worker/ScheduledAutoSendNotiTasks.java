@@ -31,7 +31,7 @@ public class ScheduledAutoSendNotiTasks {
     ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
     @Scheduled(fixedRate = 5000)
     public void reportCurrentTime() {
-        log.info("The time is now {}", dateFormat.format(new Date()) + "======> " + firebaseService.getHotArticleRecently().toString());
+        log.info("The time is now {}", dateFormat.format(new Date()) + "======> " + elasticsearchUtils.getHotArticleRecently().toString());
     }
     
  // Function lấy bài hot trong vòng 1h gần đây

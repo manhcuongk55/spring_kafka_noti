@@ -34,7 +34,7 @@ public class NotificationController {
                                              @RequestParam (value = "to", defaultValue = "") String to,
                                              @RequestParam (value = "device", defaultValue = "") String device)
             throws org.json.simple.parser.ParseException, JSONException {
-        return firebaseService.getTotalNotificationClicks(from,to,device);
+        return elasticsearchUtils.getTotalNotificationClicks(from,to,device);
     }
     @CrossOrigin
     @RequestMapping(value = "/send_mess_all", method = RequestMethod.POST)
@@ -57,7 +57,7 @@ public class NotificationController {
                                             @RequestParam (value = "size" , defaultValue = "20") String size,
                                             @RequestParam (value = "device" , defaultValue = "*") String device)
             throws org.json.simple.parser.ParseException {
-        return firebaseService.getListDeviceIdsByCategoryId(id, from, size,device).toString();
+        return elasticsearchUtils.getListDeviceIdsByCategoryId(id, from, size,device).toString();
     }
 
     @CrossOrigin
@@ -66,7 +66,7 @@ public class NotificationController {
                                                 @RequestParam (value = "to" , defaultValue = "") String to,
                                                 @RequestParam (value = "size" , defaultValue = "1") String size)
             throws org.json.simple.parser.ParseException {
-        return firebaseService.getNumberOfNotificationsClickedByTime(from, to, size).toString();
+        return elasticsearchUtils.getNumberOfNotificationsClickedByTime(from, to, size).toString();
     }
 
     @CrossOrigin
@@ -81,7 +81,7 @@ public class NotificationController {
     @RequestMapping(value = "/get_top_article", method = RequestMethod.GET, produces = "application/json")
     public String getTopArticle()
             throws org.json.simple.parser.ParseException {
-        return firebaseService.getHotArticleRecently().toString();
+        return elasticsearchUtils.getHotArticleRecently().toString();
     }
     @CrossOrigin
     @RequestMapping(value = "/get_total_devices_by_cate", method = RequestMethod.GET, produces = "application/json")
