@@ -30,6 +30,7 @@ import vn.viettel.browser.ultils.JedisUtils;
 public class NotificationService {
 
 	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
+	public static final String LOGGING_INDEX = "browser_logging_v3";
 	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
 	public String sendNotoToListDeviceByCategoryId(String message) throws JSONException {
 		int total = 0;
@@ -183,7 +184,7 @@ public class NotificationService {
 		} else if (device.equals("android")) {
 			boolQuery.mustNot(QueryBuilders.wildcardQuery("notificationId.keyword", "ios*"));
 		}
-		SearchRequestBuilder query = elasticsearchUtils.esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+		SearchRequestBuilder query = elasticsearchUtils.esClient.prepareSearch(LOGGING_INDEX).setTypes("logs")
 				.setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms("top_devices").field("notificationId.keyword"));
 		SearchResponse response = query.setSize(10).execute().actionGet();
@@ -256,7 +257,7 @@ public class NotificationService {
 				.filter(QueryBuilders.termsQuery("function.keyword", NOTIFICATION_CLICK_FUNCTION))
 				.filter(QueryBuilders.rangeQuery("@timestamp").from(from).to(to));
 
-		SearchRequestBuilder query = elasticsearchUtils.esClient.prepareSearch("browser_logging_v3").setTypes("logs")
+		SearchRequestBuilder query = elasticsearchUtils.esClient.prepareSearch(LOGGING_INDEX).setTypes("logs")
 				.setQuery(boolQuery).addAggregation(AggregationBuilders.dateHistogram("notifications_clicked_by_day")
 						.field("@timestamp").dateHistogramInterval(DateHistogramInterval.DAY));
 

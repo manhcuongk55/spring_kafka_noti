@@ -35,6 +35,7 @@ import java.util.Iterator;
  */
 public class ElasticsearchUtils {
 	private static final String DEVICE_NOTIFICATION_CAT_KEY = "categories";
+	private static final String LOGGING_INDEX = "browser_logging_v3";
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
 	private static final String START_DATE = "2017-05-17T00:00:00";
@@ -74,7 +75,7 @@ public class ElasticsearchUtils {
 					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
 		}
 
-		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v2").setTypes("logs")
+		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs")
 				.setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_CAT_KEY).field("parameters.keyword")
 						.size(20).subAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY)
@@ -212,7 +213,7 @@ public class ElasticsearchUtils {
  			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
  		}
 
- 		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v2").setTypes("logs")
+ 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs")
  				.setQuery(boolQuery)
  				.addAggregation(AggregationBuilders.terms("devices").field("notificationId.keyword").size(10000));
 
@@ -234,7 +235,7 @@ public class ElasticsearchUtils {
  			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
  		}
 
- 		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v2").setTypes("logs")
+ 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs")
  				.setQuery(boolQuery)
  				.addAggregation(AggregationBuilders.cardinality("devices").field("notificationId.keyword"));
 
