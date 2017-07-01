@@ -17,6 +17,7 @@ import vn.viettel.browser.ultils.JedisUtils;
 public class NotificationService {
 
 	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
+	public static final String LOGGING_INDEX = "browser_logging_v3";
 	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
 	public String sendNotoToListDeviceByCategoryId(String message) throws JSONException {
 		int total = 0;
@@ -152,5 +153,4 @@ public class NotificationService {
 		reponses.put("total", total);
 		return reponses.toString();
 	}
-
 }
