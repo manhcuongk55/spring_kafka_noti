@@ -40,7 +40,7 @@ import antlr.collections.List;
 public class ElasticsearchUtils {
 	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
 	private static final String DEVICE_NOTIFICATION_CAT_KEY = "categories";
-	private static final String LOGGING_INDEX = "browser_logging_v3";
+	private static final String LOGGING_INDEX = "browser_logging_v2";
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
 	private static final String START_DATE = "2017-05-17T00:00:00";
@@ -84,7 +84,7 @@ public class ElasticsearchUtils {
 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_CAT_KEY).field("parameters.keyword")
 						.size(20).subAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY)
-								.field("notificationId.keyword").size(1000)));
+								.field("notificationId.keyword").size(1000000)));
 
 		SearchResponse response = query.setSize(0).execute().actionGet();
 
@@ -285,14 +285,11 @@ public class ElasticsearchUtils {
 	public int getTotalDevice() {
 		int count = 0;
 		try {
-			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories("*").get("data");
-			Iterator<?> keys = input.keys();
-			/* Process to group firebase Id to category */
-			while (keys.hasNext()) {
-				count++;
-				System.out.println(count);
+			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories("*");
+			JSONObject metadata = input.getJSONObject("metadata");
+			if (metadata != null && metadata.get("total") != null) {
+				count = metadata.getInt("total");
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

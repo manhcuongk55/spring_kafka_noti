@@ -99,4 +99,11 @@ public class NotificationController {
             throws org.json.simple.parser.ParseException {
         return elasticsearchUtils.getTotalDeviceByCategoryId(categoryId,device);
     }
+
+    @CrossOrigin
+    @RequestMapping(value = "/count_total_devices", method = RequestMethod.GET, produces = "application/json")
+    public int countTotalDevices()
+            throws org.json.simple.parser.ParseException {
+        return elasticsearchUtils.getTotalDevice();
+    }
 }
