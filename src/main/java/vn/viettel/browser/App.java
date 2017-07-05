@@ -37,11 +37,11 @@ public class App {
         int debug = 0;
         if (debug == 1) {
             System.getProperties().put("http.proxySet", "true");
-            System.getProperties().put("http.proxyHost", "192.168.10.30");
-            System.getProperties().put("http.proxyPort", "6969");
+            System.getProperties().put("http.proxyHost", "10.240.152.56");
+            System.getProperties().put("http.proxyPort", "1988");
             System.getProperties().put("https.proxySet", "true");
-            System.getProperties().put("https.proxyHost", "192.168.10.30");
-            System.getProperties().put("https.proxyPort", "6969");
+            System.getProperties().put("https.proxyHost", "10.240.152.56");
+            System.getProperties().put("https.proxyPort", "1988");
         }
 
         // Config Hbase
