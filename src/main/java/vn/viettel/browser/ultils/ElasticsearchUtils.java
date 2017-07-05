@@ -222,7 +222,7 @@ public class ElasticsearchUtils {
 			mess.put("articleId", results1.get("id"));
 			mess.put("image", results1.getJSONArray("images").get(0));
 		}
-		return mess;
+		return results1;
 	}
 
 	// Hàm lấy danh sách device theo version App
