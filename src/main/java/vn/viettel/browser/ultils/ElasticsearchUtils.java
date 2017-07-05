@@ -40,7 +40,7 @@ import antlr.collections.List;
 public class ElasticsearchUtils {
 	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
 	private static final String DEVICE_NOTIFICATION_CAT_KEY = "categories";
-	private static final String LOGGING_INDEX = "browser_logging_v2";
+	private static final String LOGGING_INDEX = "browser_logging_v3";
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
 	private static final String START_DATE = "2017-05-17T00:00:00";
