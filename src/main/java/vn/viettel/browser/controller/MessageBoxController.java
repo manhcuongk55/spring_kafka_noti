@@ -37,11 +37,18 @@ public class MessageBoxController {
         return elasticsearchUtils.countNumberOfDeviceByVersion(device,version).toString();
     }
     @CrossOrigin
+    @RequestMapping(value = "/get_total_devices", method = RequestMethod.GET, produces = "application/json")
+    public String getTotalDevice(@RequestParam (value = "device", defaultValue = "*") String device,
+                                @RequestParam (value = "version" , defaultValue = "1.0.0") String version)
+            throws org.json.simple.parser.ParseException, JSONException {
+        return elasticsearchUtils.getTotalDevice() + "";
+    }
+    @CrossOrigin
     @RequestMapping(value = "/send_mess_box", method = RequestMethod.POST)
     @ResponseBody
     public String sendMess(@RequestBody String message) throws Exception {
         System.out.println("@RequestBody : " + message);
-       return messService.sendMessBoxToListDeviceIdsByVersion1(message);
+       return messService.sendMessBoxToListDeviceIdsByVersion(message);
     }
     @CrossOrigin
     @RequestMapping(value = "/send_mess_box_all", method = RequestMethod.POST)

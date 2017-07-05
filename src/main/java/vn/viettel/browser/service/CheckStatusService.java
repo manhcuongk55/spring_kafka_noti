@@ -8,11 +8,11 @@ import vn.viettel.browser.ultils.JedisUtils;
 
 @Service
 public class CheckStatusService {
-	
+	JedisUtils jedisUtils = new JedisUtils();
 	public String checkStatusSending() throws JSONException {
 		JSONObject reponses = new JSONObject();
-		reponses.put("done", JedisUtils.get("done"));
-		reponses.put("sent_total", JedisUtils.get("sent_total"));
+		reponses.put("done", jedisUtils.get("done"));
+		reponses.put("sent_total", jedisUtils.get("sent_total"));
 		return reponses.toString();
 	}
 }

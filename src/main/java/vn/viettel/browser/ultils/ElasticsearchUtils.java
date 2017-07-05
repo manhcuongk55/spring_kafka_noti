@@ -5,9 +5,12 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -29,6 +32,8 @@ import org.json.JSONObject;
 
 import com.google.gson.Gson;
 
+import antlr.collections.List;
+
 /**
  * Created by giang on 03/04/2017.
  */
@@ -39,7 +44,8 @@ public class ElasticsearchUtils {
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
 	private static final String START_DATE = "2017-05-17T00:00:00";
-	static Settings settings = Settings.builder().put("cluster.name", "vbrowser").put("client.transport.sniff", true).build();
+	static Settings settings = Settings.builder().put("cluster.name", "vbrowser").put("client.transport.sniff", true)
+			.build();
 	public TransportClient esClient = new PreBuiltTransportClient(settings);
 
 	public ElasticsearchUtils() {
@@ -55,7 +61,7 @@ public class ElasticsearchUtils {
 		}
 	}
 
-	public  JSONObject getListDeviceIdsFromAllCategories(String device) {
+	public JSONObject getListDeviceIdsFromAllCategories(String device) {
 		org.json.JSONObject data = new org.json.JSONObject();
 		JSONObject results = new JSONObject();
 		JSONObject rows = new JSONObject();
@@ -75,8 +81,7 @@ public class ElasticsearchUtils {
 					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
 		}
 
-		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs")
-				.setQuery(boolQuery)
+		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_CAT_KEY).field("parameters.keyword")
 						.size(20).subAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY)
 								.field("notificationId.keyword").size(1000)));
@@ -116,136 +121,152 @@ public class ElasticsearchUtils {
 		}
 		return results;
 	}
-    public static String convertEsResultToString(SearchResponse response) throws JSONException {
-        Gson gson = new Gson();
-        ArrayList<Object> results = new ArrayList<Object>();
-        SearchHit[] hits = response.getHits().getHits();
-        for (int i = 0; i < hits.length; i++) {
-            JSONObject obj = new JSONObject();
-            obj.put("_source", hits[i].getSource());
-            obj.put("_id", hits[i].getId());
-            results.add(obj);
-        }
 
-        return gson.toJson(results);
-    }
+	public static String convertEsResultToString(SearchResponse response) throws JSONException {
+		Gson gson = new Gson();
+		ArrayList<Object> results = new ArrayList<Object>();
+		SearchHit[] hits = response.getHits().getHits();
+		for (int i = 0; i < hits.length; i++) {
+			JSONObject obj = new JSONObject();
+			obj.put("_source", hits[i].getSource());
+			obj.put("_id", hits[i].getId());
+			results.add(obj);
+		}
 
-    public static String convertEsResultAggrsToString(SearchResponse response, String key) throws JSONException {
-        Gson gson = new Gson();
-        ArrayList<Object> results = new ArrayList<Object>();
-        Terms terms = response.getAggregations().get(key);
-        Collection<Terms.Bucket> buckets = terms.getBuckets();
-        for (Terms.Bucket bucket : buckets) {
-            JSONObject obj = new JSONObject();
-            obj.put(bucket.getKeyAsString(), bucket.getDocCount());
-            results.add(obj);
-        }
-        return gson.toJson(results);
-    }
+		return gson.toJson(results);
+	}
 
-    public static org.json.JSONObject convertEsResultAggrsToArray(SearchResponse response, String key, String subKey) throws JSONException {
-        Terms agg = response.getAggregations().get(key);
-        org.json.JSONObject result = new org.json.JSONObject();
-        Collection<Terms.Bucket> buckets = agg.getBuckets();
+	public static String convertEsResultAggrsToString(SearchResponse response, String key) throws JSONException {
+		Gson gson = new Gson();
+		ArrayList<Object> results = new ArrayList<Object>();
+		Terms terms = response.getAggregations().get(key);
+		Collection<Terms.Bucket> buckets = terms.getBuckets();
+		for (Terms.Bucket bucket : buckets) {
+			JSONObject obj = new JSONObject();
+			obj.put(bucket.getKeyAsString(), bucket.getDocCount());
+			results.add(obj);
+		}
+		return gson.toJson(results);
+	}
 
-        for (Terms.Bucket bucket : buckets) {
-            if (bucket.getDocCount() != 0) {
-                Terms terms = bucket.getAggregations().get(subKey);
-                Collection<Terms.Bucket> bkts = terms.getBuckets();
-                for (Terms.Bucket b : bkts) {
-                    if (b.getDocCount() != 0 && !b.getKeyAsString().equals("undefined")) {
-                        org.json.JSONObject obj = new org.json.JSONObject();
-                        String categoryName = bucket.getKeyAsString().split(",")[2].replace("}", "")
-                                .replace("\"", "");
-                        if (!categoryName.equals("categoryId:1")) {
-                            obj.put(categoryName, b.getDocCount());
-                        }
-                        result.append(b.getKeyAsString(), obj);
-                    }
-                }
-            }
-        }
-        return result;
-    }
+	public static org.json.JSONObject convertEsResultAggrsToArray(SearchResponse response, String key, String subKey)
+			throws JSONException {
+		Terms agg = response.getAggregations().get(key);
+		org.json.JSONObject result = new org.json.JSONObject();
+		Collection<Terms.Bucket> buckets = agg.getBuckets();
 
- // Function lấy bài hot trong vòng 1h gần đây
- 	public  SearchResponse getHotArticleRecentlyByCategory(int categoryID) {
- 		SearchResponse response = new SearchResponse();
- 		DateTime dateFrom = DateTimeUtils.getPreviousTime("hour", 1);
- 		if (dateFrom != null) {
- 			long from = DateTimeUtils.convertDateTimeToUnixTimestamp(dateFrom);
+		for (Terms.Bucket bucket : buckets) {
+			if (bucket.getDocCount() != 0) {
+				Terms terms = bucket.getAggregations().get(subKey);
+				Collection<Terms.Bucket> bkts = terms.getBuckets();
+				for (Terms.Bucket b : bkts) {
+					if (b.getDocCount() != 0 && !b.getKeyAsString().equals("undefined")) {
+						org.json.JSONObject obj = new org.json.JSONObject();
+						String categoryName = bucket.getKeyAsString().split(",")[2].replace("}", "").replace("\"", "");
+						if (!categoryName.equals("categoryId:1")) {
+							obj.put(categoryName, b.getDocCount());
+						}
+						result.append(b.getKeyAsString(), obj);
+					}
+				}
+			}
+		}
+		return result;
+	}
 
- 			BoolQueryBuilder boolQuery = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("display", "1"))
- 					.must(QueryBuilders.termQuery("category.id", categoryID))
- 					.must(QueryBuilders.rangeQuery("time_post").from(from / 1000));
- 			SearchRequestBuilder query = esClient.prepareSearch("br_article_v4").setTypes("article")
- 					.setQuery(boolQuery).addAggregation(AggregationBuilders.terms("hot_tags").field("tags").size(1)
- 							.subAggregation(AggregationBuilders.topHits("top_article_of_tags").size(1)));
- 			response = query.setSize(0).execute().actionGet();
- 		}
- 		return response;
- 	}
+	// Function lấy bài hot trong vòng 1h gần đây
+	public SearchResponse getHotArticleRecentlyByCategory(int categoryID) {
+		SearchResponse response = new SearchResponse();
+		DateTime dateFrom = DateTimeUtils.getPreviousTime("hour", 1);
+		if (dateFrom != null) {
+			long from = DateTimeUtils.convertDateTimeToUnixTimestamp(dateFrom);
 
- 	// Function lấy bài hot trong vòng 1h gần đây
- 	public SearchResponse getHotArticleRecently() {
- 		SearchResponse response = new SearchResponse();
- 		DateTime dateFrom = DateTimeUtils.getPreviousTime("hour", 1);
- 		if (dateFrom != null) {
- 			long from = DateTimeUtils.convertDateTimeToUnixTimestamp(dateFrom);
+			BoolQueryBuilder boolQuery = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("display", "1"))
+					.must(QueryBuilders.termQuery("category.id", categoryID))
+					.must(QueryBuilders.rangeQuery("time_post").from(from / 1000));
+			SearchRequestBuilder query = esClient.prepareSearch("br_article_v4").setTypes("article").setQuery(boolQuery)
+					.addAggregation(AggregationBuilders.terms("hot_tags").field("tags").size(1)
+							.subAggregation(AggregationBuilders.topHits("top_article_of_tags").size(1)));
+			response = query.setSize(0).execute().actionGet();
+		}
+		return response;
+	}
 
- 			BoolQueryBuilder boolQuery = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("display", "1"))
- 					.must(QueryBuilders.rangeQuery("time_post").from(from / 1000));
- 			SearchRequestBuilder query = esClient.prepareSearch("br_article_v4").setTypes("article")
- 					.setQuery(boolQuery).addAggregation(AggregationBuilders.terms("hot_tags").field("tags").size(1)
- 							.subAggregation(AggregationBuilders.topHits("top_article_of_tags").size(1)));
- 			response = query.setSize(0).execute().actionGet();
- 		}
- 		return response;
- 	}
- 	
- // Hàm lấy danh sách device theo version App
- 	public  JSONArray getListDeviceByVersion(String device, String version) throws JSONException {
- 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
- 		if (device.equals("android") || device.equals("ios") ) {
- 			boolQuery.must(QueryBuilders.termsQuery("deviceType", device))
- 					.must(QueryBuilders.termsQuery("appVersion", version));
- 		} else {
- 			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
- 		}
+	// Function lấy bài hot trong vòng 1h gần đây
+	public JSONObject getHotArticleRecently() throws JSONException {
+		SearchResponse response = new SearchResponse();
+		JSONObject results1 = null;
+		JSONObject mess = null;
+		DateTime dateFrom = DateTimeUtils.getPreviousTime("hour", 1);
+		if (dateFrom != null) {
+			long from = DateTimeUtils.convertDateTimeToUnixTimestamp(dateFrom);
 
- 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs")
- 				.setQuery(boolQuery)
- 				.addAggregation(AggregationBuilders.terms("devices").field("notificationId.keyword").size(10000));
+			BoolQueryBuilder boolQuery = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("display", "1"))
+					.must(QueryBuilders.rangeQuery("time_post").from(from / 1000));
+			SearchRequestBuilder query = esClient.prepareSearch("br_article_v4").setTypes("article").setQuery(boolQuery)
+					.addAggregation(AggregationBuilders.terms("hot_tags").field("tags").size(1)
+							.subAggregation(AggregationBuilders.topHits("top_article_of_tags").size(1)));
+			response = query.setSize(0).execute().actionGet();
+			JSONObject response1 = new JSONObject(response.toString());
+			JSONObject aggregations = (JSONObject) response1.get("aggregations");
+			JSONObject results = (JSONObject) aggregations.get("hot_tags");
+			JSONArray list = results.getJSONArray("buckets");
+			results1 = (JSONObject) list.get(0);
+			results1 = (JSONObject) results1.get("top_article_of_tags");
+			results1 = (JSONObject) results1.get("hits");
+			results1 = (JSONObject) ((JSONArray) results1.get("hits")).get(0);
+			results1 = (JSONObject) results1.get("_source");
+			mess = new JSONObject();
+			mess.put("category", ((JSONObject) results1.get("category")).get("id"));
+			mess.put("title", results1.getJSONArray("title").get(0));
+			mess.put("articleId", results1.get("id"));
+			mess.put("image", results1.getJSONArray("images").get(0));
+		}
+		return mess;
+	}
 
- 		SearchResponse response = query.setSize(0).execute().actionGet();
- 		JSONObject response1 = new JSONObject(response.toString());
- 		JSONObject aggregations = (JSONObject)response1.get("aggregations");
- 		JSONObject results = (JSONObject)aggregations.get("devices");
- 		JSONArray listDevices = results.getJSONArray("buckets");
- 		return listDevices;
- 	}
+	// Hàm lấy danh sách device theo version App
+	public JSONArray getListDeviceByVersion(String device, String version) throws JSONException {
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		if (device.equals("android") || device.equals("ios")) {
+			boolQuery.must(QueryBuilders.termsQuery("deviceType", device))
+					.must(QueryBuilders.termsQuery("appVersion", version));
+		} else {
+			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
+		}
 
- 	// Hàm tính tổng thiết bị theo version
- 	public  SearchResponse countNumberOfDeviceByVersion(String device, String version) throws JSONException {
- 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
- 		if (device.equals("android") || device.equals("ios") ) {
- 			boolQuery.must(QueryBuilders.termsQuery("deviceType", device))
- 					.must(QueryBuilders.termsQuery("appVersion", version));
- 		} else {
- 			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
- 		}
+		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
+				.addAggregation(AggregationBuilders.terms("devices").field("notificationId.keyword").size(10000));
 
- 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs")
- 				.setQuery(boolQuery)
- 				.addAggregation(AggregationBuilders.cardinality("devices").field("notificationId.keyword"));
+		SearchResponse response = query.setSize(0).execute().actionGet();
+		JSONObject response1 = new JSONObject(response.toString());
+		JSONObject aggregations = (JSONObject) response1.get("aggregations");
+		JSONObject results = (JSONObject) aggregations.get("devices");
+		JSONArray listDevices = results.getJSONArray("buckets");
+		return listDevices;
+	}
 
- 		SearchResponse response = query.setSize(0).execute().actionGet();
- 		return response;
- 	}
+	// Hàm tính tổng thiết bị theo version
+	public SearchResponse countNumberOfDeviceByVersion(String device, String version) throws JSONException {
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		if (device.equals("android") || device.equals("ios")) {
+			boolQuery.must(QueryBuilders.termsQuery("deviceType", device))
+					.must(QueryBuilders.termsQuery("appVersion", version));
+		} else {
+			boolQuery.must(QueryBuilders.termsQuery("appVersion", version));
+		}
+
+		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
+				.addAggregation(AggregationBuilders.cardinality("devices").field("notificationId.keyword"));
+
+		SearchResponse response = query.setSize(0).execute().actionGet();
+		return response;
+	}
+
 	public int getTotalDeviceByCategoryId(String categoryId, String device) {
 		int totalDevice = 0;
 		try {
-			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories(device).get("data");
+			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories(device).get("data");
 			Iterator<?> keys = input.keys();
 			/* Process to group firebase Id to category */
 			while (keys.hasNext()) {
@@ -261,21 +282,23 @@ public class ElasticsearchUtils {
 		return totalDevice;
 	}
 
-	public  int getTotalDevice() {
-		int totalDevice = 0;
+	public int getTotalDevice() {
+		int count = 0;
 		try {
-			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories("*").get("data");
+			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories("*").get("data");
 			Iterator<?> keys = input.keys();
 			/* Process to group firebase Id to category */
 			while (keys.hasNext()) {
-				totalDevice++;
-
+				count++;
+				System.out.println(count);
 			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return totalDevice;
+		return count;
 	}
+
 	public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size, String device) {
 		JSONObject results = new JSONObject();
 		JSONObject metadata = new JSONObject();
@@ -285,7 +308,7 @@ public class ElasticsearchUtils {
 		Date date = new Date();
 
 		try {
-			JSONObject input = (JSONObject)getListDeviceIdsFromAllCategories(device).get("data");
+			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories(device).get("data");
 			int total = 0;
 			Iterator<?> keys = input.keys();
 
@@ -313,6 +336,7 @@ public class ElasticsearchUtils {
 		}
 		return results;
 	}
+
 	public String getNumberOfNotificationsClickedByTime(String from, String to, String size) {
 		if (from.equals("")) {
 			from = DateTimeUtils.getPreviousDate(30);
@@ -324,9 +348,9 @@ public class ElasticsearchUtils {
 				.filter(QueryBuilders.termsQuery("function.keyword", NOTIFICATION_CLICK_FUNCTION))
 				.filter(QueryBuilders.rangeQuery("@timestamp").from(from).to(to));
 
-		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs")
-				.setQuery(boolQuery).addAggregation(AggregationBuilders.dateHistogram("notifications_clicked_by_day")
-						.field("@timestamp").dateHistogramInterval(DateHistogramInterval.DAY));
+		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs").setQuery(boolQuery)
+				.addAggregation(AggregationBuilders.dateHistogram("notifications_clicked_by_day").field("@timestamp")
+						.dateHistogramInterval(DateHistogramInterval.DAY));
 
 		SearchResponse response = query.setSize(Integer.parseInt(size)).execute().actionGet();
 		return response.toString();
@@ -349,8 +373,7 @@ public class ElasticsearchUtils {
 		} else if (device.equals("android")) {
 			boolQuery.mustNot(QueryBuilders.wildcardQuery("notificationId.keyword", "ios*"));
 		}
-		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs")
-				.setQuery(boolQuery)
+		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs").setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms("top_devices").field("notificationId.keyword"));
 		SearchResponse response = query.setSize(10).execute().actionGet();
 		return response.toString();

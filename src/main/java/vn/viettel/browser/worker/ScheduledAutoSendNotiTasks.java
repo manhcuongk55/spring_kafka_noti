@@ -1,23 +1,16 @@
 package vn.viettel.browser.worker;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.joda.time.DateTime;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import vn.viettel.browser.service.NotificationService;
-import vn.viettel.browser.ultils.DateTimeUtils;
 import vn.viettel.browser.ultils.ElasticsearchUtils;
 
 @Component
@@ -30,25 +23,11 @@ public class ScheduledAutoSendNotiTasks {
     private NotificationService firebaseService;
     ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
     @Scheduled(fixedRate = 5000)
-    public void reportCurrentTime() {
-        log.info("The time is now {}", dateFormat.format(new Date()) + "======> " + elasticsearchUtils.getHotArticleRecently().toString());
+    public void reportCurrentTime() throws JSONException {
+       org.json.JSONObject articlJson = elasticsearchUtils.getHotArticleRecently();
+       
+       
     }
     
- // Function lấy bài hot trong vòng 1h gần đây
- 	public SearchResponse getHotArticleRecentlyByCategory(int categoryID) {
- 		SearchResponse response = new SearchResponse();
- 		DateTime dateFrom = DateTimeUtils.getPreviousTime("hour", 1);
- 		if (dateFrom != null) {
- 			long from = DateTimeUtils.convertDateTimeToUnixTimestamp(dateFrom);
-
- 			BoolQueryBuilder boolQuery = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("display", "1"))
- 					.must(QueryBuilders.termQuery("category.id", categoryID))
- 					.must(QueryBuilders.rangeQuery("time_post").from(from / 1000));
- 			SearchRequestBuilder query = elasticsearchUtils.esClient.prepareSearch("br_article_v4").setTypes("article")
- 					.setQuery(boolQuery).addAggregation(AggregationBuilders.terms("hot_tags").field("tags").size(1)
- 							.subAggregation(AggregationBuilders.topHits("top_article_of_tags").size(1)));
- 			response = query.setSize(0).execute().actionGet();
- 		}
- 		return response;
- 	}
+ 
 }

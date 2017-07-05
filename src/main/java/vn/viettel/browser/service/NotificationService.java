@@ -16,10 +16,11 @@ import vn.viettel.browser.ultils.JedisUtils;
 @Service
 public class NotificationService {
 
-	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
-	public static final String LOGGING_INDEX = "browser_logging_v3";
 	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
+	JedisUtils jedisUtils = new JedisUtils();
+
 	public String sendNotoToListDeviceByCategoryId(String message) throws JSONException {
+		jedisUtils.set("done", 0 + "");
 		int total = 0;
 		JSONObject reponses = new JSONObject();
 		JSONArray devices = new JSONArray();
@@ -32,7 +33,6 @@ public class NotificationService {
 
 			/* Process to group firebase Id to category */
 			while (keys.hasNext()) {
-				JedisUtils.set("done", 0 + "");
 				String key = (String) keys.next();
 				JSONObject obj = (JSONObject) input.get(key);
 				JSONObject mess = new JSONObject(message);
@@ -76,10 +76,11 @@ public class NotificationService {
 						System.out.println("@results_android : " + results);
 					}
 					total++;
-					JedisUtils.set("sent_total", total + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId,"*"));
+					jedisUtils.set("sent_total",
+							total + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId, "*"));
 				}
 			}
-			JedisUtils.set("done", 1 + "");
+			jedisUtils.set("done", 1 + "");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -90,6 +91,7 @@ public class NotificationService {
 	}
 
 	public String sendNotiToAll(String message) throws JSONException {
+		jedisUtils.set("done", 0 + "");
 		int total = 0;
 		JSONObject reponses = new JSONObject();
 		JSONArray devices = new JSONArray();
@@ -102,13 +104,15 @@ public class NotificationService {
 
 			/* Process to group firebase Id to category */
 			while (keys.hasNext()) {
-				JedisUtils.set("done", 0 + "");
 				String key = (String) keys.next();
+				JSONObject obj = (JSONObject) input.get(key);
 				JSONObject mess = new JSONObject(message);
 				JSONObject results = new JSONObject();
 				JSONObject data = new JSONObject();
 				JSONObject notification = new JSONObject();
+				String categoryId = "";
 				try {
+					categoryId = "categoryId:" + mess.getString("category");
 					data.put("articleId", mess.getString("articleId"));
 					data.put("title", mess.getString("title"));
 					data.put("image", mess.getString("image"));
@@ -142,9 +146,11 @@ public class NotificationService {
 					System.out.println("@results_android : " + results);
 				}
 				total++;
-				JedisUtils.set("sent_total", total + "_" + elasticsearchUtils.getTotalDevice());
+				jedisUtils.set("sent_total",
+						total + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId, "*"));
+
 			}
-			JedisUtils.set("done", 1 + "");
+			jedisUtils.set("done", 1 + "");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
