@@ -26,7 +26,6 @@ public class ScheduledAutoSendNotiTasks {
     public void reportCurrentTime() throws JSONException {
        org.json.JSONObject articlJson = elasticsearchUtils.getHotArticleRecently();
        
-       
     }
     
  

@@ -24,21 +24,21 @@ public class NotificationController {
     private NotificationService firebaseService;
 
     @CrossOrigin
-    @RequestMapping(value = "/send_mess", method = RequestMethod.POST)
+    @RequestMapping(value = "/send_mess", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
     public String sendNotifi(@RequestBody String notification) throws Exception {
         System.out.println("@RequestBody : " + notification);
        return firebaseService.sendNotoToListDeviceByCategoryId(notification);
     }
     @CrossOrigin
-    @RequestMapping(value = "/send_mess_test", method = RequestMethod.POST)
+    @RequestMapping(value = "/send_mess_test", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
     public String sendNotifit(@RequestBody String notification) throws Exception {
         System.out.println("@RequestBody : " + notification);
        return FireBaseUtils.pushNotificationToSingleDevice(new JSONObject(notification));
     }
     @CrossOrigin
-    @RequestMapping(value = "/notification_clicks", method = RequestMethod.GET)
+    @RequestMapping(value = "/notification_clicks", method = RequestMethod.GET, produces = "application/json")
     public String getTotalnotificationclicks(@RequestParam (value = "from", defaultValue = "") String from,
                                              @RequestParam (value = "to", defaultValue = "") String to,
                                              @RequestParam (value = "device", defaultValue = "") String device)
@@ -46,7 +46,7 @@ public class NotificationController {
         return elasticsearchUtils.getTotalNotificationClicks(from,to,device);
     }
     @CrossOrigin
-    @RequestMapping(value = "/send_mess_all", method = RequestMethod.POST)
+    @RequestMapping(value = "/send_mess_all", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
     public String sendNotifiToAll(@RequestBody String notification) throws Exception {
         System.out.println("@RequestBody : " + notification);

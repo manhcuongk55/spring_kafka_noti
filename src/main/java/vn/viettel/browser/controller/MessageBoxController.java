@@ -44,14 +44,14 @@ public class MessageBoxController {
         return elasticsearchUtils.getTotalDevice() + "";
     }
     @CrossOrigin
-    @RequestMapping(value = "/send_mess_box", method = RequestMethod.POST)
+    @RequestMapping(value = "/send_mess_box", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
     public String sendMess(@RequestBody String message) throws Exception {
         System.out.println("@RequestBody : " + message);
        return messService.sendMessBoxToListDeviceIdsByVersion(message);
     }
     @CrossOrigin
-    @RequestMapping(value = "/send_mess_box_all", method = RequestMethod.POST)
+    @RequestMapping(value = "/send_mess_box_all", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
     public String sendMessToAll(@RequestBody String message) throws Exception {
         System.out.println("@RequestBody : " + message);

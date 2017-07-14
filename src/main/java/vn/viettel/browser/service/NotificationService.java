@@ -20,12 +20,12 @@ public class NotificationService {
 	JedisUtils jedisUtils = new JedisUtils();
 
 	public String sendNotoToListDeviceByCategoryId(String message) throws JSONException {
-		jedisUtils.set("done", 0 + "");
 		int total = 0;
 		JSONObject reponses = new JSONObject();
 		JSONArray devices = new JSONArray();
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
+		String idJob = "";
 		try {
 			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories("*").get("data");
 
@@ -41,8 +41,10 @@ public class NotificationService {
 				JSONObject notification = new JSONObject();
 				String categoryId = "";
 				try {
-					categoryId = "categoryId:" + mess.getString("category");
-					data.put("articleId", mess.getString("articleId"));
+					idJob = mess.getString("articleId");
+					jedisUtils.set("done" + idJob, 0 + "");
+				     categoryId = "categoryId:" + mess.getString("category");
+					data.put("articleId", idJob);
 					data.put("title", mess.getString("title"));
 					data.put("image", mess.getString("image"));
 					results.put("data", data);
@@ -76,11 +78,11 @@ public class NotificationService {
 						System.out.println("@results_android : " + results);
 					}
 					total++;
-					jedisUtils.set("sent_total",
+					jedisUtils.set("sent_total" + idJob,
 							total + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId, "*"));
 				}
 			}
-			jedisUtils.set("done", 1 + "");
+			jedisUtils.set("done" + idJob, 1 + "");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -91,12 +93,12 @@ public class NotificationService {
 	}
 
 	public String sendNotiToAll(String message) throws JSONException {
-		jedisUtils.set("done", 0 + "");
 		int total = 0;
 		JSONObject reponses = new JSONObject();
 		JSONArray devices = new JSONArray();
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
+		String idJob = "";
 		try {
 			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories("*").get("data");
 
@@ -110,10 +112,10 @@ public class NotificationService {
 				JSONObject results = new JSONObject();
 				JSONObject data = new JSONObject();
 				JSONObject notification = new JSONObject();
-				String categoryId = "";
 				try {
-					categoryId = "categoryId:" + mess.getString("category");
-					data.put("articleId", mess.getString("articleId"));
+					idJob = mess.getString("articleId");
+					jedisUtils.set("done" + idJob, 0 + "");
+					data.put("articleId", idJob);
 					data.put("title", mess.getString("title"));
 					data.put("image", mess.getString("image"));
 					results.put("data", data);
@@ -146,11 +148,10 @@ public class NotificationService {
 					System.out.println("@results_android : " + results);
 				}
 				total++;
-				jedisUtils.set("sent_total",
-						total + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId, "*"));
+				jedisUtils.set("sent_total" + idJob, total + "_" + elasticsearchUtils.getTotalDevice());
 
 			}
-			jedisUtils.set("done", 1 + "");
+			jedisUtils.set("done" + idJob, 1 + "");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
