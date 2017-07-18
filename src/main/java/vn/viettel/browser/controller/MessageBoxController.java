@@ -3,6 +3,7 @@ package vn.viettel.browser.controller;
 import javax.annotation.Resource;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,7 +49,15 @@ public class MessageBoxController {
     @ResponseBody
     public String sendMess(@RequestBody String message) throws Exception {
         System.out.println("@RequestBody : " + message);
-       return messService.sendMessBoxToListDeviceIdsByVersion(message);
+        JSONObject mess = new JSONObject(message);
+        String versionAn = mess.getString("version_android");
+        String versionIos = mess.getString("version_ios");
+        if("".equals(versionAn) && "".equals(versionIos)){
+        	return messService.sendMessBoxToAll(message);
+        }else {
+        	return messService.sendMessBoxToListDeviceIdsByVersion(message);
+		}
+       
     }
     @CrossOrigin
     @RequestMapping(value = "/send_mess_box_all", method = RequestMethod.POST, produces = "application/json")
