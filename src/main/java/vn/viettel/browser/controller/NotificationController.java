@@ -26,14 +26,14 @@ public class NotificationController {
     @CrossOrigin
     @RequestMapping(value = "/send_mess", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
-    public String sendNotifi(@RequestBody String notification) throws Exception {
+    public String sendNotifificationByCate(@RequestBody String notification) throws Exception {
         System.out.println("@RequestBody : " + notification);
        return firebaseService.sendNotoToListDeviceByCategoryId(notification);
     }
     @CrossOrigin
     @RequestMapping(value = "/send_mess_test", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
-    public String sendNotifit(@RequestBody String notification) throws Exception {
+    public String sendNotifiForTest(@RequestBody String notification) throws Exception {
         System.out.println("@RequestBody : " + notification);
        return FireBaseUtils.pushNotificationToSingleDevice(new JSONObject(notification));
     }
