@@ -40,22 +40,22 @@ import antlr.collections.List;
 public class ElasticsearchUtils {
 	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
 	private static final String DEVICE_NOTIFICATION_CAT_KEY = "categories";
-	private static final String LOGGING_INDEX = "browser_logging_v3";
+	private static final String LOGGING_INDEX = "browser_logging_dev";
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
 	private static final String START_DATE = "2017-05-17T00:00:00";
-	static Settings settings = Settings.builder().put("cluster.name", "vbrowser").put("client.transport.sniff", true)
+	static Settings settings = Settings.builder().put("cluster.name", "browserlabs").put("client.transport.sniff", true)
 			.build();
 	public TransportClient esClient = new PreBuiltTransportClient(settings);
 
 	public ElasticsearchUtils() {
 		try {
 			this.esClient
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.233"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.232"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.234"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.146"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.147"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.148"), 9300))
 					.addTransportAddress(
-							new InetSocketTransportAddress(InetAddress.getByName("192.168.107.235"), 9300));
+							new InetSocketTransportAddress(InetAddress.getByName("10.240.152.149"), 9300));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -345,7 +345,7 @@ public class ElasticsearchUtils {
 				.filter(QueryBuilders.termsQuery("function.keyword", NOTIFICATION_CLICK_FUNCTION))
 				.filter(QueryBuilders.rangeQuery("@timestamp").from(from).to(to));
 
-		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs").setQuery(boolQuery)
+		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_dev").setTypes("logs").setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.dateHistogram("notifications_clicked_by_day").field("@timestamp")
 						.dateHistogramInterval(DateHistogramInterval.DAY));
 
@@ -370,7 +370,7 @@ public class ElasticsearchUtils {
 		} else if (device.equals("android")) {
 			boolQuery.mustNot(QueryBuilders.wildcardQuery("notificationId.keyword", "ios*"));
 		}
-		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_v3").setTypes("logs").setQuery(boolQuery)
+		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_dev").setTypes("logs").setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms("top_devices").field("notificationId.keyword"));
 		SearchResponse response = query.setSize(10).execute().actionGet();
 		return response.toString();
