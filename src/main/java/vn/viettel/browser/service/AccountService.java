@@ -34,6 +34,7 @@ public class AccountService implements AccountServiceIface {
 
     @Autowired
     public AccountService(DeviceService deviceService) {
+        System.out.println("Test");
         this.deviceService = deviceService;
     }
 
