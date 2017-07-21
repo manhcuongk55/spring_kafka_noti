@@ -35,7 +35,8 @@ public class MessageBoxService {
 			data.put("content", mess.getString("content"));
 			data.put("title", mess.getString("title"));
 			data.put("type", mess.getString("type"));
-			jedisUtils.set("done_box"+ mess.getString("content"), 0 + "");
+			data.put("jobId", mess.getString("jobId"));
+			jedisUtils.set("done_box"+ mess.getString("jobId"), 0 + "");
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -44,7 +45,7 @@ public class MessageBoxService {
 		JSONArray listIos = elasticsearchUtils.getListDeviceByVersion("ios", version_ios);
 		JSONArray listAndroid = elasticsearchUtils.getListDeviceByVersion("android", version_android);
 		int all = listIos.length() + listAndroid.length();
-		jedisUtils.set("sent_total_box" + mess.getString("content"), total + "_" + all);
+		jedisUtils.set("sent_total_box" + mess.getString("jobId"), total + "_" + all);
 		for (int i = 0; i < listIos.length(); i++) {
 			try {
 				JSONObject results = new JSONObject();
@@ -61,7 +62,7 @@ public class MessageBoxService {
 				ids.put("ios_" + key, rp);
 				System.out.println("@results_ios : " + results);
 				total++;
-				jedisUtils.set("sent_total_box"+ mess.getString("content"), total + "_" + all);
+				jedisUtils.set("sent_total_box"+ mess.getString("jobId"), total + "_" + all);
 			} catch (JSONException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -78,9 +79,9 @@ public class MessageBoxService {
 			ids.put("android_" + key, rp);
 			System.out.println("@results_android : " + results);
 			total++;
-			jedisUtils.set("sent_total_box"+ mess.getString("content"), total + "_" + all);
+			jedisUtils.set("sent_total_box"+ mess.getString("jobId"), total + "_" + all);
 		}
-		jedisUtils.set("done_box"+ mess.getString("content"), 1 + "");
+		jedisUtils.set("done_box"+ mess.getString("jobId"), 1 + "");
 		devices.put(ids);
 		reponses.put("devices", devices);
 		reponses.put("total", total);
@@ -90,9 +91,9 @@ public class MessageBoxService {
 
 	public String sendMessBoxToAll(String message) throws JSONException {
 		JSONObject mess = new JSONObject(message);
-		jedisUtils.set("done_box" +  mess.getString("content"), 0 + "");
+		jedisUtils.set("done_box" +  mess.getString("jobId"), 0 + "");
 		int total = 0;
-		jedisUtils.set("sent_total_box" +  mess.getString("content"), total + "_" + elasticsearchUtils.getTotalDevice());
+		jedisUtils.set("sent_total_box" +  mess.getString("jobId"), total + "_" + elasticsearchUtils.getTotalDevice());
 		JSONObject reponses = new JSONObject();
 		JSONArray devices = new JSONArray();
 		reponses.put("message", message);
@@ -112,6 +113,7 @@ public class MessageBoxService {
 					data.put("type", mess.getString("type"));
 					data.put("content", mess.getString("content"));
 					data.put("title", mess.getString("title"));
+					data.put("jobId", mess.getString("jobId"));
 					results.put("data", data);
 				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
@@ -142,10 +144,10 @@ public class MessageBoxService {
 					System.out.println("@results_android : " + results);
 				}
 				total++;
-				jedisUtils.set("sent_total_box" +  mess.getString("content"), total + "_" + elasticsearchUtils.getTotalDevice());
+				jedisUtils.set("sent_total_box" +  mess.getString("jobId"), total + "_" + elasticsearchUtils.getTotalDevice());
 
 			}
-			jedisUtils.set("done_box" +  mess.getString("content"), 1 + "");
+			jedisUtils.set("done_box" +  mess.getString("jobId"), 1 + "");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

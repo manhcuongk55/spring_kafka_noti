@@ -5,12 +5,9 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -31,8 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.gson.Gson;
-
-import antlr.collections.List;
 
 /**
  * Created by giang on 03/04/2017.
