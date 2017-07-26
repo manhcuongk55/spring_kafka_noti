@@ -35,6 +35,7 @@ import com.google.gson.Gson;
 public class ElasticsearchUtils {
 	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
 	private static final String DEVICE_NOTIFICATION_CAT_KEY = "categories";
+	private static final String EMPTY_STRING = "";
 	private static final String LOGGING_INDEX = "browser_logging_dev";
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
@@ -330,10 +331,10 @@ public class ElasticsearchUtils {
 	}
 
 	public String getNumberOfNotificationsClickedByTime(String from, String to, String size) {
-		if (from.equals("")) {
+		if (EMPTY_STRING.equals(from)) {
 			from = DateTimeUtils.getPreviousDate(30);
 		}
-		if (to.equals("")) {
+		if (EMPTY_STRING.equals(to)) {
 			to = DateTimeUtils.getTimeNow();
 		}
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
@@ -349,10 +350,10 @@ public class ElasticsearchUtils {
 	}
 
 	public String getTotalNotificationClicks(String from, String to, String device) {
-		if (from.equals("")) {
+		if (EMPTY_STRING.equals(from)) {
 			from = DateTimeUtils.getPreviousDate(7);
 		}
-		if (to.equals("")) {
+		if (EMPTY_STRING.equals(to)) {
 			to = DateTimeUtils.getTimeNow();
 		}
 

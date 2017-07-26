@@ -24,6 +24,7 @@ public class CheckStatusService {
 		JSONObject JsonId = new JSONObject(id);
 		id = JsonId.getString("jobId");
 		JSONObject reponses = new JSONObject();
+		
 		String done_box = jedisUtils.get("done_box" + id);
 		String sent_total_box = jedisUtils.get("sent_total_box" + id);
 		reponses.put("done_box", done_box + "");

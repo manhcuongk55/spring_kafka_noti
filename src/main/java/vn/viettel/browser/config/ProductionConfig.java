@@ -14,6 +14,7 @@ public class ProductionConfig {
     public static final String[] ES_HOST_STAGING = {"10.240.152.146", "10.240.152.147", "10.240.152.148", "10.240.152.149",
             "10.240.152.150", "10.240.152.151"};
     public static boolean PRODUCTION_ENV = false;
-
+    public static final String[] TestFireBase = {
+			"eseq1-O9WaU:APA91bENg9ifxedNRmuFcVZJCTubIfr0l14ACza51LX9u7UBOgYu1KkNMKze4axzOsHTq6rBpI7s3VJ9r7Z5wXhclOIViME835G3JPZLcswQ7nyKiHNF_xm-8nIFwI_6L7xlfkjbfX3V"};
 
 }
