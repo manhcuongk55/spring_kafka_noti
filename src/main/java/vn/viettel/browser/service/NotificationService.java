@@ -32,7 +32,6 @@ public class NotificationService {
 
 			Iterator<?> keys = input.keys();
 
-			/* Process to group firebase Id to category */
 			while (keys.hasNext()) {
 				String key = (String) keys.next();
 				JSONObject obj = (JSONObject) input.get(key);
@@ -95,9 +94,9 @@ public class NotificationService {
 
 	public String sendNotiToAll(String message) throws Exception {
 		JSONObject mess = new JSONObject(message);
-		if(mess.has("test")){
+		if (mess.has("test")) {
 			return sendNotoToDeviceTest(message, ProductionConfig.TestFireBase);
-		}else{
+		} else {
 			int total = 0;
 			JSONObject reponses = new JSONObject();
 			JSONArray devices = new JSONArray();
@@ -164,7 +163,7 @@ public class NotificationService {
 			reponses.put("total", total);
 			return reponses.toString();
 		}
-		
+
 	}
 
 	public String sendNotoToDeviceTest(String message, String[] listDevices) throws Exception {
@@ -179,11 +178,9 @@ public class NotificationService {
 			JSONObject results = new JSONObject();
 			JSONObject data = new JSONObject();
 			JSONObject notification = new JSONObject();
-			String categoryId = "";
 			try {
 				idJob = mess.getString("articleId");
 				jedisUtils.set("done" + idJob, 0 + "");
-				categoryId = "categoryId:" + mess.getString("category");
 				data.put("articleId", idJob);
 				data.put("title", mess.getString("title"));
 				data.put("image", mess.getString("image"));
@@ -218,8 +215,7 @@ public class NotificationService {
 				System.out.println("@results_android : " + results);
 			}
 			total++;
-			jedisUtils.set("sent_total" + idJob,
-					total + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId, "*"));
+			jedisUtils.set("sent_total" + idJob, total + "_" + listDevices.length);
 		}
 		jedisUtils.set("done" + idJob, 1 + "");
 		devices.put(ids);
