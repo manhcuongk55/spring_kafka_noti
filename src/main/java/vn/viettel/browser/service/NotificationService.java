@@ -104,7 +104,7 @@ public class NotificationService {
 			Map<String, String> ids = new HashMap<>();
 			String idJob = "";
 			try {
-				JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories("*").get("data");
+				JSONObject input = (JSONObject) elasticsearchUtils.getListAllDevices("*").get("data");
 
 				Iterator<?> keys = input.keys();
 

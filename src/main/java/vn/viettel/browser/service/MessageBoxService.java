@@ -99,7 +99,7 @@ public class MessageBoxService {
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		try {
-			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories("*").get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListAllDevices("*").get("data");
 
 			Iterator<?> keys = input.keys();
 

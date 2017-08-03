@@ -46,12 +46,21 @@ public class ElasticsearchUtils {
 
 	public ElasticsearchUtils() {
 		try {
+			/*this.esClient
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.69"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.70"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.71"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.72"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.73"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.74"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.75"), 9300));*/
 			this.esClient
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.146"), 9300))
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.147"), 9300))
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.148"), 9300))
-					.addTransportAddress(
-							new InetSocketTransportAddress(InetAddress.getByName("10.240.152.149"), 9300));
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.149"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.150"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.151"), 9300));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -112,6 +121,49 @@ public class ElasticsearchUtils {
 			metadata.put("total", rows.length());
 			results.put("metadata", metadata);
 			results.put("data", rows);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return results;
+	}
+
+	public JSONObject getListAllDevices(String device) {
+		org.json.JSONObject data = new org.json.JSONObject();
+		JSONObject results = new JSONObject();
+		JSONObject rows = new JSONObject();
+		JSONObject metadata = new JSONObject();
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		if (device.equals("*")) {
+			boolQuery.must(QueryBuilders.queryStringQuery(FILTER_TERM))
+					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+		} else {
+			boolQuery.must(QueryBuilders.queryStringQuery(FILTER_TERM))
+					.must(QueryBuilders.termQuery("deviceType", device))
+					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+		}
+
+		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
+				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY)
+						.field("notificationId.keyword").size(1000000));
+
+		SearchResponse response = query.setSize(0).execute().actionGet();
+
+		try {
+			Terms agg = response.getAggregations().get(DEVICE_NOTIFICATION_KEY);
+			Collection<Terms.Bucket> buckets = agg.getBuckets();
+			for (Terms.Bucket b : buckets) {
+				if (b.getDocCount() != 0 && !b.getKeyAsString().equals("undefined")) {
+					data.put(b.getKeyAsString(),b.getDocCount());
+				}
+			}
+
+			metadata.put("date", dateFormat.format(date));
+			metadata.put("total", data.length());
+			results.put("metadata", metadata);
+			results.put("data", data);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -281,7 +333,7 @@ public class ElasticsearchUtils {
 	public int getTotalDevice() {
 		int count = 0;
 		try {
-			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories("*");
+			JSONObject input = (JSONObject) getListAllDevices("*");
 			JSONObject metadata = input.getJSONObject("metadata");
 			if (metadata != null && metadata.get("total") != null) {
 				count = metadata.getInt("total");
@@ -341,7 +393,7 @@ public class ElasticsearchUtils {
 				.filter(QueryBuilders.termsQuery("function.keyword", NOTIFICATION_CLICK_FUNCTION))
 				.filter(QueryBuilders.rangeQuery("@timestamp").from(from).to(to));
 
-		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_dev").setTypes("logs").setQuery(boolQuery)
+		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.dateHistogram("notifications_clicked_by_day").field("@timestamp")
 						.dateHistogramInterval(DateHistogramInterval.DAY));
 
@@ -366,7 +418,7 @@ public class ElasticsearchUtils {
 		} else if (device.equals("android")) {
 			boolQuery.mustNot(QueryBuilders.wildcardQuery("notificationId.keyword", "ios*"));
 		}
-		SearchRequestBuilder query = esClient.prepareSearch("browser_logging_dev").setTypes("logs").setQuery(boolQuery)
+		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms("top_devices").field("notificationId.keyword"));
 		SearchResponse response = query.setSize(10).execute().actionGet();
 		return response.toString();
