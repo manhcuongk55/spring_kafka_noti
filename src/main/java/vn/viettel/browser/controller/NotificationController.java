@@ -106,4 +106,12 @@ public class NotificationController {
             throws org.json.simple.parser.ParseException {
         return elasticsearchUtils.getTotalDevice();
     }
+
+    @CrossOrigin
+    @RequestMapping(value = "/get_list_device_by_version", method = RequestMethod.GET, produces = "application/json")
+    public String getListDeviceByVersion(@RequestParam (value = "deviceType" , defaultValue = "*") String deviceType,
+                                      @RequestParam (value = "version" , defaultValue = "*") String version)
+            throws org.json.simple.parser.ParseException, JSONException {
+        return elasticsearchUtils.getDevicesByDeviceVersion(deviceType,version).toString();
+    }
 }

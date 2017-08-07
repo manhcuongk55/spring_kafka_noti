@@ -105,13 +105,12 @@ public class NotificationService {
 			String idJob = "";
 			try {
 				JSONObject input = (JSONObject) elasticsearchUtils.getListAllDevices("*").get("data");
-
 				Iterator<?> keys = input.keys();
 
 				/* Process to group firebase Id to category */
 				while (keys.hasNext()) {
 					String key = (String) keys.next();
-					JSONObject obj = (JSONObject) input.get(key);
+					//JSONObject obj = (JSONObject) input.get(key);
 					JSONObject results = new JSONObject();
 					JSONObject data = new JSONObject();
 					JSONObject notification = new JSONObject();

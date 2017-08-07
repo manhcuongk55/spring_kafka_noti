@@ -40,6 +40,7 @@ public class ElasticsearchUtils {
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
 	private static final String START_DATE = "2017-05-17T00:00:00";
+	private static final int MAX_DEVICES = 1000000;
 	static Settings settings = Settings.builder().put("cluster.name", "browserlabs").put("client.transport.sniff", true)
 			.build();
 	public TransportClient esClient = new PreBuiltTransportClient(settings);
@@ -89,7 +90,7 @@ public class ElasticsearchUtils {
 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_CAT_KEY).field("parameters.keyword")
 						.size(20).subAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY)
-								.field("notificationId.keyword").size(1000000)));
+								.field("notificationId.keyword").size(MAX_DEVICES)));
 
 		SearchResponse response = query.setSize(0).execute().actionGet();
 
@@ -147,7 +148,7 @@ public class ElasticsearchUtils {
 
 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
 				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY)
-						.field("notificationId.keyword").size(1000000));
+						.field("notificationId.keyword").size(MAX_DEVICES));
 
 		SearchResponse response = query.setSize(0).execute().actionGet();
 
@@ -422,5 +423,24 @@ public class ElasticsearchUtils {
 				.addAggregation(AggregationBuilders.terms("top_devices").field("notificationId.keyword"));
 		SearchResponse response = query.setSize(10).execute().actionGet();
 		return response.toString();
+	}
+
+	public SearchResponse getDevicesByDeviceVersion(String deviceType, String version) {
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		if (deviceType.equals("*")) {
+			boolQuery.must(QueryBuilders.termsQuery("deviceVersion",version))
+					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+		} else {
+			boolQuery.must(QueryBuilders.termsQuery("deviceVersion",version))
+					.must(QueryBuilders.termQuery("deviceType", deviceType))
+					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+		}
+
+		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
+				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_CAT_KEY).field("notificationId.keyword")
+						.size(MAX_DEVICES));
+
+		SearchResponse response = query.setSize(0).execute().actionGet();
+		return response;
 	}
 }
