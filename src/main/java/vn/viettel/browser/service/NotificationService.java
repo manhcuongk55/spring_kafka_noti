@@ -223,5 +223,4 @@ public class NotificationService {
 		reponses.put("total", total);
 		return reponses.toString();
 	}
-
 }
