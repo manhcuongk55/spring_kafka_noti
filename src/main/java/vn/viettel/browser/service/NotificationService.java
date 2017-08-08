@@ -23,12 +23,14 @@ public class NotificationService {
 	public String sendNotoToListDeviceByCategoryId(String message) throws JSONException {
 		int total = 0;
 		JSONObject reponses = new JSONObject();
+		JSONObject inputSearch = new JSONObject();
+
 		JSONArray devices = new JSONArray();
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		String idJob = "";
 		try {
-			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories("*").get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories(inputSearch).get("data");
 
 			Iterator<?> keys = input.keys();
 
@@ -94,6 +96,7 @@ public class NotificationService {
 
 	public String sendNotiToAll(String message) throws Exception {
 		JSONObject mess = new JSONObject(message);
+		JSONObject inputSearch = new JSONObject();
 		if (mess.has("test")) {
 			return sendNotoToDeviceTest(message, ProductionConfig.TestFireBase);
 		} else {
@@ -104,7 +107,7 @@ public class NotificationService {
 			Map<String, String> ids = new HashMap<>();
 			String idJob = "";
 			try {
-				JSONObject input = (JSONObject) elasticsearchUtils.getListAllDevices("*").get("data");
+				JSONObject input = (JSONObject) elasticsearchUtils.getListAllDevices(inputSearch).get("data");
 				Iterator<?> keys = input.keys();
 
 				/* Process to group firebase Id to category */

@@ -36,6 +36,7 @@ public class ElasticsearchUtils {
 	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
 	private static final String DEVICE_NOTIFICATION_CAT_KEY = "categories";
 	private static final String EMPTY_STRING = "";
+	private static final String CATEGORY_FILTER_FUNCTION = "postListArticlesByCategor";
 	private static final String LOGGING_INDEX = "browser_logging_dev";
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
@@ -67,24 +68,44 @@ public class ElasticsearchUtils {
 		}
 	}
 
-	public JSONObject getListDeviceIdsFromAllCategories(String device) {
+	public BoolQueryBuilder buildESSearchBoolTermsQuery(JSONObject input) throws JSONException {
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		Iterator<?> keys = input.keys();
+		while (keys.hasNext()) {
+			String key = (String)keys.next();
+			if ( input.get(key) != null && !"*".equals(input.get(key)) ) {
+				boolQuery.must(QueryBuilders.termsQuery(key,input.get(key)));
+			}
+		}
+		return boolQuery;
+	}
+
+	public BoolQueryBuilder buildESSearchBoolFilterQuery(JSONObject input) throws JSONException {
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+		Iterator<?> keys = input.keys();
+		while (keys.hasNext()) {
+			String key = (String)keys.next();
+			if ( input.get(key) != null && !"*".equals(input.get(key)) ) {
+				boolQuery.filter(QueryBuilders.termsQuery(key,input.get(key)));
+			}
+		}
+		return boolQuery;
+	}
+
+	// input: {"function.keyword" : "postListArticlesByCategor", "deviceType" : device, "appVersion" : appVersion}
+
+	public JSONObject getListDeviceIdsFromAllCategories(JSONObject input) throws JSONException {
 		org.json.JSONObject data = new org.json.JSONObject();
 		JSONObject results = new JSONObject();
 		JSONObject rows = new JSONObject();
 		JSONObject metadata = new JSONObject();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
+		input.put("function.keyword", CATEGORY_FILTER_FUNCTION);
 
-		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		if (device.equals("*")) {
-			boolQuery.must(QueryBuilders.termsQuery("function.keyword", "postListArticlesByCategor"))
-					.must(QueryBuilders.queryStringQuery(FILTER_TERM))
-					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
-		} else {
-			boolQuery.must(QueryBuilders.termsQuery("function.keyword", "postListArticlesByCategor"))
-					.must(QueryBuilders.queryStringQuery(FILTER_TERM))
-					.must(QueryBuilders.termQuery("deviceType", device))
-					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+		BoolQueryBuilder boolQuery = buildESSearchBoolFilterQuery(input);
+		if (boolQuery != null) {
+			boolQuery.must(QueryBuilders.queryStringQuery(FILTER_TERM));
 		}
 
 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
@@ -128,7 +149,7 @@ public class ElasticsearchUtils {
 		return results;
 	}
 
-	public JSONObject getListAllDevices(String device) {
+	public JSONObject getListAllDevices(JSONObject input) throws JSONException {
 		org.json.JSONObject data = new org.json.JSONObject();
 		JSONObject results = new JSONObject();
 		JSONObject rows = new JSONObject();
@@ -136,14 +157,9 @@ public class ElasticsearchUtils {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 
-		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		if (device.equals("*")) {
-			boolQuery.must(QueryBuilders.queryStringQuery(FILTER_TERM))
-					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
-		} else {
-			boolQuery.must(QueryBuilders.queryStringQuery(FILTER_TERM))
-					.must(QueryBuilders.termQuery("deviceType", device))
-					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+		BoolQueryBuilder boolQuery = buildESSearchBoolTermsQuery(input);
+		if (boolQuery != null) {
+			boolQuery.must(QueryBuilders.queryStringQuery(FILTER_TERM));
 		}
 
 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
@@ -312,10 +328,12 @@ public class ElasticsearchUtils {
 		return response;
 	}
 
-	public int getTotalDeviceByCategoryId(String categoryId, String device) {
+	public int getTotalDeviceByCategoryId(String categoryId, String device) throws JSONException {
 		int totalDevice = 0;
+		JSONObject inputSearch = new JSONObject();
+		inputSearch.put("device" , device);
 		try {
-			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories(device).get("data");
+			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories(inputSearch).get("data");
 			Iterator<?> keys = input.keys();
 			/* Process to group firebase Id to category */
 			while (keys.hasNext()) {
@@ -333,8 +351,9 @@ public class ElasticsearchUtils {
 
 	public int getTotalDevice() {
 		int count = 0;
+		JSONObject inputSearch = new JSONObject();
 		try {
-			JSONObject input = (JSONObject) getListAllDevices("*");
+			JSONObject input = (JSONObject) getListAllDevices(inputSearch);
 			JSONObject metadata = input.getJSONObject("metadata");
 			if (metadata != null && metadata.get("total") != null) {
 				count = metadata.getInt("total");
@@ -345,16 +364,18 @@ public class ElasticsearchUtils {
 		return count;
 	}
 
-	public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size, String device) {
+	public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size, String device) throws JSONException {
 		JSONObject results = new JSONObject();
 		JSONObject metadata = new JSONObject();
+		JSONObject inputSearch = new JSONObject();
+		inputSearch.put("device",device);
 		ArrayList<String> data = new ArrayList<>();
 		String categoryId = "categoryId:" + id;
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 
 		try {
-			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories(device).get("data");
+			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories(inputSearch).get("data");
 			int total = 0;
 			Iterator<?> keys = input.keys();
 
