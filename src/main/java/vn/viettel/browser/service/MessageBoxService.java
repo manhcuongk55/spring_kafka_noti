@@ -91,6 +91,7 @@ public class MessageBoxService {
 
 	public String sendMessBoxToAll(String message) throws JSONException {
 		JSONObject mess = new JSONObject(message);
+		JSONObject inputSearch = new JSONObject();
 		jedisUtils.set("done_box" +  mess.getString("jobId"), 0 + "");
 		int total = 0;
 		jedisUtils.set("sent_total_box" +  mess.getString("jobId"), total + "_" + elasticsearchUtils.getTotalDevice());
@@ -99,7 +100,7 @@ public class MessageBoxService {
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		try {
-			JSONObject input = (JSONObject) elasticsearchUtils.getListAllDevices("*").get("data");
+			JSONObject input = (JSONObject) elasticsearchUtils.getListAllDevices(inputSearch).get("data");
 
 			Iterator<?> keys = input.keys();
 
