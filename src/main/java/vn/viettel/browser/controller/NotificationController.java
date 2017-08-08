@@ -57,7 +57,8 @@ public class NotificationController {
     @RequestMapping(value = "/get_list_devices", method = RequestMethod.GET, produces="application/json")
     public String getTotalnotificationclicks()
             throws JSONException {
-        return elasticsearchUtils.getListDeviceIdsFromAllCategories("*").toString();
+        JSONObject inputSearch = new JSONObject();
+        return elasticsearchUtils.getListDeviceIdsFromAllCategories(inputSearch).toString();
     }
     @CrossOrigin
     @RequestMapping(value = "/list_deviceId_by_category", method = RequestMethod.GET, produces = "application/json")
@@ -65,7 +66,7 @@ public class NotificationController {
                                             @RequestParam (value = "from" , defaultValue = "0") String from,
                                             @RequestParam (value = "size" , defaultValue = "20") String size,
                                             @RequestParam (value = "device" , defaultValue = "*") String device)
-            throws org.json.simple.parser.ParseException {
+            throws org.json.simple.parser.ParseException, JSONException {
         return elasticsearchUtils.getListDeviceIdsByCategoryId(id, from, size,device).toString();
     }
 
@@ -96,7 +97,7 @@ public class NotificationController {
     @RequestMapping(value = "/get_total_devices_by_cate", method = RequestMethod.GET, produces = "application/json")
     public int getTotalDeviesByCate(@RequestParam (value = "categoryId" , defaultValue = "2") String categoryId,
                                     @RequestParam (value = "device" , defaultValue = "*") String device)
-            throws org.json.simple.parser.ParseException {
+            throws org.json.simple.parser.ParseException, JSONException {
         return elasticsearchUtils.getTotalDeviceByCategoryId(categoryId,device);
     }
 
