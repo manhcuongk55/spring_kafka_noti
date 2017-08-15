@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import vn.viettel.browser.dao.*;
 import vn.viettel.browser.model.*;
 import vn.viettel.browser.service.iface.DeviceServiceIface;
-import vn.viettel.browser.ultils.HibernateUtility;
+import vn.viettel.browser.ultils.HibernateUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -57,7 +57,7 @@ public class DeviceService implements DeviceServiceIface {
     public long addNewDevice(String type) {
         DeviceModel deviceModel = new DeviceModel(idDevice.incrementAndGet(), type);
         logger.info("Added new Device: " + deviceModel);
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -94,7 +94,7 @@ public class DeviceService implements DeviceServiceIface {
         String serialNumber = jsonObject.get("serial_number").toString();
         String macWifi = jsonObject.get("mac_wifi").toString();
         AndroidDeviceModel androidDeviceModel;
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -121,7 +121,7 @@ public class DeviceService implements DeviceServiceIface {
     public long checkExistedIosDevice(JSONObject jsonObject) {
         String identifierForVendor = jsonObject.get("identifierForVendor").toString();
         IosDeviceModel iosDeviceModel;
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -170,7 +170,7 @@ public class DeviceService implements DeviceServiceIface {
         androidDeviceModel.setidDevice(idDevice);
         logger.info("Added new Android Device: " + androidDeviceModel);
 
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -192,7 +192,7 @@ public class DeviceService implements DeviceServiceIface {
         long idDevice = addNewDevice("ios");
         iosDeviceModel.setIdDevice(idDevice);
         logger.info("Added new IOS Device: " + iosDeviceModel);
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -220,7 +220,7 @@ public class DeviceService implements DeviceServiceIface {
         MapDeviceAccModel mapDeviceAccModel = new MapDeviceAccModel();
         MapDeviceAccDAO mapDeviceAccDAO = new MapDeviceAccDAO();
         logger.info("checkConnectDeviceAcc: idDevice = " + idDevice + ", accountName = " + accountName);
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         try (Session session = factory.getCurrentSession()) {
             if (!session.beginTransaction().isActive()) {
                 session.beginTransaction().begin();
@@ -242,7 +242,7 @@ public class DeviceService implements DeviceServiceIface {
         MapDeviceAccModel mapDeviceAccModel = new MapDeviceAccModel(idDevice, accountName, timeNow, String.valueOf(new Date().getTime()));
         MapDeviceAccDAO mapDeviceAccDAO = new MapDeviceAccDAO();
         logger.info("addNewConnectDeviceAcc: idDevice = " + idDevice + ", accountName = " + accountName);
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -263,7 +263,7 @@ public class DeviceService implements DeviceServiceIface {
     public JSONArray findDeviceByAccountName(String accountName) {
         JSONArray listDevices = new JSONArray();
         List<MapDeviceAccModel> mapDeviceAccModelArrayList;
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -297,7 +297,7 @@ public class DeviceService implements DeviceServiceIface {
     public void updateLastLoginDeviceAcc(MapDeviceAccModel mapDeviceAccModel) {
         long timeNow = new Date().getTime() / 1000;
         mapDeviceAccModel.setLastLogin(timeNow);
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -315,7 +315,7 @@ public class DeviceService implements DeviceServiceIface {
 
     @Override
     public void updateAccessToken(MapDeviceAccModel mapDeviceAccModel) {
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -336,7 +336,7 @@ public class DeviceService implements DeviceServiceIface {
         long idDevice;
         long idUser;
         idDevice = checkExistedDevice(typeDevice, detailedDevice);
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {

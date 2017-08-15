@@ -13,7 +13,7 @@ import vn.viettel.browser.model.AccountModel;
 import vn.viettel.browser.model.MapDeviceAccModel;
 import vn.viettel.browser.model.UserModel;
 import vn.viettel.browser.service.iface.AccountServiceIface;
-import vn.viettel.browser.ultils.HibernateUtility;
+import vn.viettel.browser.ultils.HibernateUtils;
 
 import java.util.List;
 
@@ -52,7 +52,7 @@ public class AccountService implements AccountServiceIface {
     public void createNewAccountbyDevice(AccountModel accountUpdate, UserModel userUpdate, long idDevice, String accountName) {
         MapDeviceAccModel mapDeviceAccModel = deviceService.checkConnectDeviceAcc(idDevice, accountName);
         int checkCreateNewMap = 0;
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -81,7 +81,7 @@ public class AccountService implements AccountServiceIface {
     @Override
     public void updateAccount(AccountModel accountModel) {
         AccountDAO accountDAO = new AccountDAO();
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -122,7 +122,7 @@ public class AccountService implements AccountServiceIface {
     public AccountModel findByName(String accountName) {
         AccountDAO accountDAO = new AccountDAO();
         AccountModel accountModel = new AccountModel();
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {
@@ -142,7 +142,7 @@ public class AccountService implements AccountServiceIface {
     @Override
     public MapDeviceAccModel findByAccessToken(String accessToken) {
         MapDeviceAccModel mapDeviceAccModel = new MapDeviceAccModel();
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         try (Session session = factory.getCurrentSession()) {
             if (!session.beginTransaction().isActive()) {
                 session.beginTransaction().begin();
@@ -160,7 +160,7 @@ public class AccountService implements AccountServiceIface {
 
     @Override
     public void updateMapDeviceAccount(MapDeviceAccModel mapDeviceAccModel) {
-        SessionFactory factory = HibernateUtility.getSessionFactory();
+        SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         try {
             if (!session.beginTransaction().isActive()) {

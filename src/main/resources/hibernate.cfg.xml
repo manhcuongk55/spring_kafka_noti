@@ -12,9 +12,9 @@
         <!--<property name="connection.username">quytx</property>-->
         <!--<property name="connection.password">123456</property>-->
 
-        <property name="connection.url">jdbc:mysql://192.168.108.251:3306/user_profile?serverTimezone=UTC&amp;autoReconnect=true&amp;useSSL=false&amp;useUnicode=yes&amp;characterEncoding=UTF-8</property>
-        <property name="connection.username">account_user_profile</property>
-        <property name="connection.password">4LF55Hb2tphfbwer09547</property>
+        <property name="connection.url">jdbc:mysql://10.240.152.152:3306/webnewsdb?serverTimezone=UTC&amp;autoReconnect=true&amp;useSSL=false&amp;useUnicode=yes&amp;characterEncoding=UTF-8</property>
+        <property name="connection.username">sfive_lab</property>
+        <property name="connection.password">Jferhrbfdlhu**</property>
 
         <!-- c3p0 config http://www.hibernate.org/214.html -->
         <property name="connection.provider_class">org.hibernate.c3p0.internal.C3P0ConnectionProvider</property>
@@ -41,12 +41,7 @@
         <property name="cache.provider_class">org.hibernate.cache.internal.NoCachingRegionFactory</property>
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">true</property>
-        <mapping class="vn.viettel.browser.model.AccountModel"/>
-        <mapping class="vn.viettel.browser.model.AndroidDeviceModel"/>
-        <mapping class="vn.viettel.browser.model.IosDeviceModel"/>
-        <mapping class="vn.viettel.browser.model.DeviceModel"/>
-        <mapping class="vn.viettel.browser.model.MapDeviceAccModel"/>
-        <mapping class="vn.viettel.browser.model.UserModel"/>
-        <mapping class="vn.viettel.browser.model.WindowsDeviceModel"/>
+        <mapping class="vn.viettel.browser.model.DeviceAndroid"/>
+        <mapping class="vn.viettel.browser.model.DeviceIos"/>
     </session-factory>
 </hibernate-configuration>

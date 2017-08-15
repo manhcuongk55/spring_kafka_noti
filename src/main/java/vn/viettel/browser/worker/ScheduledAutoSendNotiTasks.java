@@ -16,7 +16,7 @@ import vn.viettel.browser.ultils.ElasticsearchUtils;
 @Component
 public class ScheduledAutoSendNotiTasks {
 
-    private static final Logger log = LoggerFactory.getLogger(ScheduledAutoSendNotiTasks.class);
+   /* private static final Logger log = LoggerFactory.getLogger(ScheduledAutoSendNotiTasks.class);
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     @Resource
@@ -26,7 +26,7 @@ public class ScheduledAutoSendNotiTasks {
     public void reportCurrentTime() throws JSONException {
        org.json.JSONObject articlJson = elasticsearchUtils.getHotArticleRecently();
        
-    }
+    }*/
     
  
 }

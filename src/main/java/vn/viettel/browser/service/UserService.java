@@ -11,7 +11,7 @@ import vn.viettel.browser.model.AccountModel;
 import vn.viettel.browser.model.MapDeviceAccModel;
 import vn.viettel.browser.model.UserModel;
 import vn.viettel.browser.service.iface.UserServiceIface;
-import vn.viettel.browser.ultils.HibernateUtility;
+import vn.viettel.browser.ultils.HibernateUtils;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
@@ -89,7 +89,7 @@ public class UserService implements UserServiceIface {
     public long getIdFromAccessToken(String accessToken) {
         long idUser = 0L;
         try {
-            SessionFactory factory = HibernateUtility.getSessionFactory();
+            SessionFactory factory = HibernateUtils.getSessionFactory();
             Session session = factory.getCurrentSession();
             try {
                 if (!session.beginTransaction().isActive()) {

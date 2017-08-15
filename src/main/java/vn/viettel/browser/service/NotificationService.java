@@ -24,32 +24,32 @@ public class NotificationService {
 		int total = 0;
 		JSONObject reponses = new JSONObject();
 		JSONObject inputSearch = new JSONObject();
-
+		JSONObject mess = new JSONObject(message);
+		/*String arrayString = mess.getString("versionAndroid");
+		if (arrayString.contains("[") && arrayString.contains("]")) {
+			arrayString = arrayString.replace("[", "");
+			arrayString = arrayString.replace("]", "");
+			String[] arrayParamaterId = arrayString.split(",");
+		}*/
 		JSONArray devices = new JSONArray();
 		reponses.put("message", message);
 		Map<String, String> ids = new HashMap<>();
 		String idJob = "";
 		try {
-			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories(inputSearch).get("data");
-
+			JSONObject input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories(inputSearch)
+					.get("data");
 			Iterator<?> keys = input.keys();
 
 			while (keys.hasNext()) {
 				String key = (String) keys.next();
 				JSONObject obj = (JSONObject) input.get(key);
-				JSONObject mess = new JSONObject(message);
-				JSONObject results = new JSONObject();
-				JSONObject data = new JSONObject();
-				JSONObject notification = new JSONObject();
+				JSONObject resultsAndroid = createJSonForAndroid(message);
+				JSONObject resultsIos = createJSonForIos(message);
 				String categoryId = "";
 				try {
 					idJob = mess.getString("articleId");
 					jedisUtils.set("done" + idJob, 0 + "");
 					categoryId = "categoryId:" + mess.getString("category");
-					data.put("articleId", idJob);
-					data.put("title", mess.getString("title"));
-					data.put("image", mess.getString("image"));
-					results.put("data", data);
 				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -57,27 +57,20 @@ public class NotificationService {
 				if (obj.has(categoryId)) {
 					if (key.contains("ios")) {
 						try {
-							notification.put("body", mess.getString("title"));
-							// notification.put("badge",0);
-							notification.put("sound", "default");
-							results.put("notification", notification);
-							results.put("mutable_content", true);
 							key.replace("ios", "");
-							results.put("to", key);
-							System.out.println("key:ios " + key);
-							String rp = FireBaseUtils.pushNotificationToSingleDevice(results);
+							resultsIos.put("to", key);
+							String rp = FireBaseUtils.pushNotificationToSingleDevice(resultsIos);
 							ids.put("ios_" + key, rp);
-							System.out.println("@results_ios : " + results);
+							System.out.println("@results_ios : " + resultsIos);
 						} catch (JSONException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 					} else {
-						results.put("to", key);
-						System.out.println("key:android " + key);
-						String rp = FireBaseUtils.pushNotificationToSingleDevice(results);
+						resultsAndroid.put("to", key);
+						String rp = FireBaseUtils.pushNotificationToSingleDevice(resultsAndroid);
 						ids.put("android_" + key, rp);
-						System.out.println("@results_android : " + results);
+						System.out.println("@results_android : " + resultsAndroid);
 					}
 					total++;
 					jedisUtils.set("sent_total" + idJob,
@@ -109,48 +102,30 @@ public class NotificationService {
 			try {
 				JSONObject input = (JSONObject) elasticsearchUtils.getListAllDevices(inputSearch).get("data");
 				Iterator<?> keys = input.keys();
-
-				/* Process to group firebase Id to category */
 				while (keys.hasNext()) {
 					String key = (String) keys.next();
-					//JSONObject obj = (JSONObject) input.get(key);
-					JSONObject results = new JSONObject();
-					JSONObject data = new JSONObject();
-					JSONObject notification = new JSONObject();
-					try {
-						idJob = mess.getString("articleId");
-						jedisUtils.set("done" + idJob, 0 + "");
-						data.put("articleId", idJob);
-						data.put("title", mess.getString("title"));
-						data.put("image", mess.getString("image"));
-						results.put("data", data);
-					} catch (JSONException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					JSONObject resultsAndroid = createJSonForAndroid(message);
+					JSONObject resultsIos = createJSonForIos(message);
+					idJob = mess.getString("articleId");
+					jedisUtils.set("done" + idJob, 0 + "");
 					if (key.contains("ios")) {
 						try {
-							notification.put("body", mess.getString("title"));
-							// notification.put("badge",0);
-							notification.put("sound", "default");
-							results.put("notification", notification);
-							results.put("mutable_content", true);
 							key.replace("ios", "");
-							results.put("to", key);
+							resultsIos.put("to", key);
 							System.out.println("key:ios " + key);
-							String rp = FireBaseUtils.pushNotificationToSingleDevice(results);
+							String rp = FireBaseUtils.pushNotificationToSingleDevice(resultsIos);
 							ids.put("ios_" + key, rp);
-							System.out.println("@results_ios : " + results);
+							System.out.println("@results_ios : " + resultsIos);
 						} catch (JSONException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 					} else {
-						results.put("to", key);
+						resultsAndroid.put("to", key);
 						System.out.println("key:android " + key);
-						String rp = FireBaseUtils.pushNotificationToSingleDevice(results);
+						String rp = FireBaseUtils.pushNotificationToSingleDevice(resultsAndroid);
 						ids.put("android_" + key, rp);
-						System.out.println("@results_android : " + results);
+						System.out.println("@results_android : " + resultsAndroid);
 					}
 					total++;
 					jedisUtils.set("sent_total" + idJob, total + "_" + elasticsearchUtils.getTotalDevice());
@@ -177,16 +152,12 @@ public class NotificationService {
 		String idJob = "";
 		for (int i = 0; i < listDevices.length; i++) {
 			JSONObject mess = new JSONObject(message);
-			JSONObject results = new JSONObject();
-			JSONObject data = new JSONObject();
-			JSONObject notification = new JSONObject();
+			JSONObject resultsAndroid = createJSonForAndroid(message);
+			JSONObject resultsIos = createJSonForIos(message);
 			try {
 				idJob = mess.getString("articleId");
 				jedisUtils.set("done" + idJob, 0 + "");
-				data.put("articleId", idJob);
-				data.put("title", mess.getString("title"));
-				data.put("image", mess.getString("image"));
-				results.put("data", data);
+
 			} catch (JSONException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -194,27 +165,21 @@ public class NotificationService {
 
 			if (listDevices[i].contains("ios")) {
 				try {
-					notification.put("body", mess.getString("title"));
-					// notification.put("badge",0);
-					notification.put("sound", "default");
-					results.put("notification", notification);
-					results.put("mutable_content", true);
-					listDevices[i].replace("ios", "");
-					results.put("to", listDevices[i]);
+					resultsIos.put("to", listDevices[i]);
 					System.out.println("key:ios " + listDevices[i]);
-					String rp = FireBaseUtils.pushNotificationToSingleDevice(results);
+					String rp = FireBaseUtils.pushNotificationToSingleDevice(resultsIos);
 					ids.put("ios_" + listDevices[i], rp);
-					System.out.println("@results_ios : " + results);
+					System.out.println("@results_ios : " + resultsIos);
 				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			} else {
-				results.put("to", listDevices[i]);
+				resultsAndroid.put("to", listDevices[i]);
 				System.out.println("key:android " + listDevices[i]);
-				String rp = FireBaseUtils.pushNotificationToSingleDevice(results);
+				String rp = FireBaseUtils.pushNotificationToSingleDevice(resultsAndroid);
 				ids.put("android_" + listDevices[i], rp);
-				System.out.println("@results_android : " + results);
+				System.out.println("@results_android : " + resultsAndroid);
 			}
 			total++;
 			jedisUtils.set("sent_total" + idJob, total + "_" + listDevices.length);
@@ -224,5 +189,34 @@ public class NotificationService {
 		reponses.put("devices", devices);
 		reponses.put("total", total);
 		return reponses.toString();
+	}
+
+	public static JSONObject createJSonForAndroid(String message) throws JSONException {
+		JSONObject mess = new JSONObject(message);
+		String idJob = mess.getString("articleId");
+		JSONObject results = new JSONObject();
+		JSONObject data = new JSONObject();
+		data.put("articleId", idJob);
+		data.put("title", mess.getString("title"));
+		data.put("image", mess.getString("image"));
+		results.put("data", data);
+		return results;
+	}
+
+	public static JSONObject createJSonForIos(String message) throws JSONException {
+		JSONObject mess = new JSONObject(message);
+		JSONObject notification = new JSONObject();
+		notification.put("body", mess.getString("title"));
+		notification.put("sound", "default");
+		String idJob = mess.getString("articleId");
+		JSONObject results = new JSONObject();
+		results.put("notification", notification);
+		results.put("mutable_content", true);
+		JSONObject data = new JSONObject();
+		data.put("articleId", idJob);
+		data.put("title", mess.getString("title"));
+		data.put("image", mess.getString("image"));
+		results.put("data", data);
+		return results;
 	}
 }

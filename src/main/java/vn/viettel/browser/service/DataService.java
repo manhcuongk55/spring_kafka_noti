@@ -14,7 +14,7 @@ import vn.viettel.browser.model.DeviceModel;
 import vn.viettel.browser.model.MapDeviceAccModel;
 import vn.viettel.browser.service.iface.DataServiceIface;
 import vn.viettel.browser.ultils.HBaseUtility;
-import vn.viettel.browser.ultils.HibernateUtility;
+import vn.viettel.browser.ultils.HibernateUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -274,7 +274,7 @@ public class DataService implements DataServiceIface {
         long idDevice = deviceService.checkExistedDevice(typeDevice, detailedDevice);
 
         if (idDevice != 0) {
-            SessionFactory factory = HibernateUtility.getSessionFactory();
+            SessionFactory factory = HibernateUtils.getSessionFactory();
             Session session = factory.getCurrentSession();
             try {
                 if (!session.beginTransaction().isActive()) {

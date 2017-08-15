@@ -16,7 +16,7 @@ import vn.viettel.browser.exception.DataNotFoundException;
 import vn.viettel.browser.global.Variables;
 import vn.viettel.browser.model.*;
 import vn.viettel.browser.service.iface.LoginServiceIface;
-import vn.viettel.browser.ultils.HibernateUtility;
+import vn.viettel.browser.ultils.HibernateUtils;
 import vn.viettel.browser.ultils.HttpConnection;
 import vn.viettel.browser.ultils.MD5;
 import vn.viettel.browser.ultils.VerifyIdToken;
@@ -90,7 +90,7 @@ public class LoginService implements LoginServiceIface {
             if (noLogin == 0) {
 
                 long unixCurrentTime = new Date().getTime() / 1000;
-                SessionFactory factory = HibernateUtility.getSessionFactory();
+                SessionFactory factory = HibernateUtils.getSessionFactory();
                 Session session = factory.getCurrentSession();
                 try {
                     if (!session.beginTransaction().isActive()) {
@@ -164,7 +164,7 @@ public class LoginService implements LoginServiceIface {
             if (json != null) {
                 accountUpdate.setAccountName(json.get("id").toString());
                 accountUpdate.setLastLogin(time);
-                SessionFactory factory = HibernateUtility.getSessionFactory();
+                SessionFactory factory = HibernateUtils.getSessionFactory();
                 Session session = factory.getCurrentSession();
                 try {
                     if (!session.beginTransaction().isActive()) {
@@ -211,7 +211,7 @@ public class LoginService implements LoginServiceIface {
             if (json != null) {
                 accountUpdate.setAccountName(json.get("id").toString());
                 accountUpdate.setLastLogin(time);
-                SessionFactory factory = HibernateUtility.getSessionFactory();
+                SessionFactory factory = HibernateUtils.getSessionFactory();
                 Session session = factory.getCurrentSession();
                 try {
                     if (!session.beginTransaction().isActive()) {

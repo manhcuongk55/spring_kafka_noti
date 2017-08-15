@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScan
 @Configuration
 @EnableCaching
-@EnableScheduling
 public class App {
 	public static void main(String[] args) throws IOException {
 		SpringApplication.run(App.class, args);
