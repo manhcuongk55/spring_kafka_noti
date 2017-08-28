@@ -6,8 +6,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "device_android")
-public class DeviceAndroid {
+@Table(name = "version_app")
+public class AppVersion {
 	
 	
 	private Integer id;
@@ -15,10 +15,10 @@ public class DeviceAndroid {
 	
 	
 	
-	public DeviceAndroid() {
+	public AppVersion() {
 		super();
 	}
-	public DeviceAndroid(Integer id, String name) {
+	public AppVersion(Integer id, String name) {
 		super();
 		this.id = id;
 		this.name = name;

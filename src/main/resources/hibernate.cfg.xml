@@ -41,7 +41,7 @@
         <property name="cache.provider_class">org.hibernate.cache.internal.NoCachingRegionFactory</property>
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">true</property>
-        <mapping class="vn.viettel.browser.model.DeviceAndroid"/>
-        <mapping class="vn.viettel.browser.model.DeviceIos"/>
+        <mapping class="vn.viettel.browser.model.DeviceVersion"/>
+        <mapping class="vn.viettel.browser.model.AppVersion"/>
     </session-factory>
 </hibernate-configuration>

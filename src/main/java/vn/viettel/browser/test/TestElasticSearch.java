@@ -12,8 +12,8 @@ public class TestElasticSearch {
 		JSONObject inputSearch = new JSONObject();
 		JSONObject input = new JSONObject();
 		try {
-			inputSearch.put("deviceType", "android");
-			inputSearch.put("deviceVersion", "7.0");
+			inputSearch.put("deviceType", "*");
+			inputSearch.put("deviceVersion", "[7.0]");
 			input = (JSONObject) elasticsearchUtils.getListAllDevices(inputSearch).get("data");
 			System.out.println(input);
 		} catch (JSONException e2) {

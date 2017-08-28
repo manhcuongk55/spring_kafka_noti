@@ -7,17 +7,17 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "device_ios")
-public class DeviceIos {
+@Table(name = "version_device")
+public class DeviceVersion {
 	private Integer id;
 	private String name;
 	
 	
 	
-	public DeviceIos() {
+	public DeviceVersion() {
 		super();
 	}
-	public DeviceIos(Integer id, String name) {
+	public DeviceVersion(Integer id, String name) {
 		super();
 		this.id = id;
 		this.name = name;
