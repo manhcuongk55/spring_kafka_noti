@@ -39,7 +39,7 @@ public class ElasticsearchUtils {
 	private static final String CATEGORY_FILTER_FUNCTION = "postListArticlesByCategor";
 	private static final String LOGGING_INDEX = "browser_logging_dev";
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
-	private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
+	private static final String FILTER_TERM = "parameters:\"size: 20,from: 0\"";
 	private static final String START_DATE = "2017-05-17T00:00:00";
 	private static final int MAX_DEVICES = 1000000;
 	static Settings settings = Settings.builder().put("cluster.name", "browserlabs").put("client.transport.sniff", true)
@@ -131,7 +131,7 @@ public class ElasticsearchUtils {
 						String keyName = (String) it.next();
 						if (val.getLong(keyName) > maxValue) {
 							JSONObject obj = new JSONObject();
-							obj.put(keyName, val.getLong(keyName));
+							obj.put(keyName.replace(" ",""), val.getLong(keyName));
 							rows.put(k, obj);
 							maxValue = val.getLong(keyName);
 						}
