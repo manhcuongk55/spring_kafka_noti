@@ -13,7 +13,8 @@ public class FireBaseUtils {
 	private static final String FIREBASE_URL = "https://fcm.googleapis.com/fcm/send";
 	private static final String FIREBASE_API_KEY = "key=AAAAYdEO07Y:APA91bHVj_2t-wSrNj6E372nSYj4YstqraLfXKrSP0Tt_AJbe2A_zY975VZ9X85c6-7pdjfZcO6XvHMrGJS4ONLV_eO00baSjNgh5uJjC2SBoBZPGhEC7LvufC3jAWvxIXIRFrSjCIsG";
 	public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
-
+ 
+	
 	public static String pushNotificationToTopic(JSONObject mess) throws Exception {
 		URL obj = new URL(FIREBASE_URL);
 		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
@@ -69,16 +70,18 @@ public class FireBaseUtils {
 		int responseCode = con.getResponseCode();
 		System.out.println("\nSending 'POST' request to URL : " + FIREBASE_URL);
 		System.out.println("Response Code : " + responseCode);
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		String inputLine;
 		StringBuffer response = new StringBuffer();
+        try {
+        	BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        	String inputLine;
+    		while ((inputLine = in.readLine()) != null) {
+    			response.append(inputLine);
+    		}
+    		in.close();
 
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
-		in.close();
-
 		// print result
 		System.out.println(response.toString());
 		return response.toString();

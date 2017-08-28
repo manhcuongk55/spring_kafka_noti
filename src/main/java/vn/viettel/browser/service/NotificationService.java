@@ -128,7 +128,7 @@ public class NotificationService {
 						System.out.println("@results_android : " + resultsAndroid);
 					}
 					total++;
-					jedisUtils.set("sent_total" + idJob, total + "_" + elasticsearchUtils.getTotalDevice());
+					jedisUtils.set("sent_total" + idJob, total + "_" + elasticsearchUtils.getTotalDevice(inputSearch));
 
 				}
 				jedisUtils.set("done" + idJob, 1 + "");

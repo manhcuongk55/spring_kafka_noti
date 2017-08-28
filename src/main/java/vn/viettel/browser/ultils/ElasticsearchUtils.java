@@ -131,7 +131,7 @@ public class ElasticsearchUtils {
 						String keyName = (String) it.next();
 						if (val.getLong(keyName) > maxValue) {
 							JSONObject obj = new JSONObject();
-							obj.put(keyName, val.getLong(keyName));
+							obj.put(keyName.replace(" " , ""), val.getLong(keyName));
 							rows.put(k, obj);
 							maxValue = val.getLong(keyName);
 						}
@@ -349,9 +349,8 @@ public class ElasticsearchUtils {
 		return totalDevice;
 	}
 
-	public int getTotalDevice() {
+	public int getTotalDevice(JSONObject inputSearch) {
 		int count = 0;
-		JSONObject inputSearch = new JSONObject();
 		try {
 			JSONObject input = (JSONObject) getListAllDevices(inputSearch);
 			JSONObject metadata = input.getJSONObject("metadata");

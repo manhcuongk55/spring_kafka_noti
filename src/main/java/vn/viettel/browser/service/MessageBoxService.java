@@ -94,7 +94,7 @@ public class MessageBoxService {
 		JSONObject inputSearch = new JSONObject();
 		jedisUtils.set("done_box" +  mess.getString("jobId"), 0 + "");
 		int total = 0;
-		jedisUtils.set("sent_total_box" +  mess.getString("jobId"), total + "_" + elasticsearchUtils.getTotalDevice());
+		jedisUtils.set("sent_total_box" +  mess.getString("jobId"), total + "_" + elasticsearchUtils.getTotalDevice(inputSearch));
 		JSONObject reponses = new JSONObject();
 		JSONArray devices = new JSONArray();
 		reponses.put("message", message);
@@ -145,7 +145,7 @@ public class MessageBoxService {
 					System.out.println("@results_android : " + results);
 				}
 				total++;
-				jedisUtils.set("sent_total_box" +  mess.getString("jobId"), total + "_" + elasticsearchUtils.getTotalDevice());
+				jedisUtils.set("sent_total_box" +  mess.getString("jobId"), total + "_" + elasticsearchUtils.getTotalDevice(inputSearch));
 
 			}
 			jedisUtils.set("done_box" +  mess.getString("jobId"), 1 + "");

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import vn.viettel.browser.config.ProductionConfig;
+import vn.viettel.browser.service.MultipleConsumersSendNotiService;
 import vn.viettel.browser.service.NotificationService;
 import vn.viettel.browser.ultils.ElasticsearchUtils;
 import vn.viettel.browser.ultils.FireBaseUtils;
@@ -21,14 +23,14 @@ import vn.viettel.browser.ultils.FireBaseUtils;
 public class NotificationController {
 	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
 	@Resource
-	private NotificationService firebaseService;
+	private MultipleConsumersSendNotiService multipleConsumersSendNotiService;
 
 	@CrossOrigin
 	@RequestMapping(value = "/send_mess", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public String sendNotifificationByCate(@RequestBody String notification) throws Exception {
 		System.out.println("@RequestBody : " + notification);
-		return firebaseService.sendNotoToListDeviceByCategoryId(notification);
+		return multipleConsumersSendNotiService.SendMess(notification, 0);
 	}
 
 	@CrossOrigin
@@ -53,7 +55,12 @@ public class NotificationController {
 	@ResponseBody
 	public String sendNotifiToAll(@RequestBody String notification) throws Exception {
 		System.out.println("@RequestBody : " + notification);
-		return firebaseService.sendNotiToAll(notification);
+		JSONObject mess = new JSONObject(notification);
+		if (mess.has("test")) {
+			return multipleConsumersSendNotiService.SendMess(notification, 4);
+		} else {
+			return multipleConsumersSendNotiService.SendMess(notification, 1);
+		}
 	}
 
 	@CrossOrigin
@@ -104,11 +111,14 @@ public class NotificationController {
 		return elasticsearchUtils.getTotalDeviceByCategoryId(categoryId, device);
 	}
 
-	@CrossOrigin
-	@RequestMapping(value = "/count_total_devices", method = RequestMethod.GET, produces = "application/json")
-	public int countTotalDevices() throws org.json.simple.parser.ParseException {
-		return elasticsearchUtils.getTotalDevice();
-	}
+	/*
+	 * @CrossOrigin
+	 * 
+	 * @RequestMapping(value = "/count_total_devices", method =
+	 * RequestMethod.GET, produces = "application/json") public int
+	 * countTotalDevices() throws org.json.simple.parser.ParseException { return
+	 * elasticsearchUtils.getTotalDevice(); }
+	 */
 
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_device_by_version", method = RequestMethod.GET, produces = "application/json")
