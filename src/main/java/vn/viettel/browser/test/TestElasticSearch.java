@@ -13,7 +13,7 @@ public class TestElasticSearch {
 		JSONObject input = new JSONObject();
 		try {
 			inputSearch.put("deviceType", "*");
-			inputSearch.put("deviceVersion", "[7.0]");
+			inputSearch.put("deviceVersion", "6.0");
 			input = (JSONObject) elasticsearchUtils.getListAllDevices(inputSearch).get("data");
 			System.out.println(input);
 		} catch (JSONException e2) {

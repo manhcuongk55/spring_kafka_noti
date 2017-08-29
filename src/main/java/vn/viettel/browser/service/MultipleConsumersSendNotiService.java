@@ -34,16 +34,17 @@ public final class MultipleConsumersSendNotiService {
 			input.put("deviceType", messJson.get("deviceType"));
 		}
 		if (messJson.has("appVersion")) {
-
-			String appVersion = HibernateUtils.getVersionAppFromKeyInDB(messJson.getString("appVersion"));
-			input.put("appVersion", appVersion);
+			if (!messJson.getString("appVersion").trim().equals("[]")) {
+				String appVersion = HibernateUtils.getVersionAppFromKeyInDB(messJson.getString("appVersion"));
+				input.put("appVersion", appVersion);
+			}
 
 		}
 		if (messJson.has("deviceVersion")) {
-
-			String deviceVersion = HibernateUtils.getVersionDeviceFromKeyInDB(messJson.getString("deviceVersion"));
-			input.put("deviceVersion", deviceVersion);
-
+			if (!messJson.getString("deviceVersion").trim().equals("[]")) {
+				String deviceVersion = HibernateUtils.getVersionDeviceFromKeyInDB(messJson.getString("deviceVersion"));
+				input.put("deviceVersion", deviceVersion);
+			}
 		}
 		if (messJson.has("category")) {
 			categoryId = messJson.getString("category");

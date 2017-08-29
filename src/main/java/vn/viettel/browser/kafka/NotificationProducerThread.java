@@ -186,6 +186,7 @@ public class NotificationProducerThread implements Runnable {
 		JSONObject input = null;
 		try {
 			input = (JSONObject) elasticsearchUtils.getListAllDevices(inputSearch).get("data");
+			System.out.println("input ............. " + input);
 		} catch (JSONException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
