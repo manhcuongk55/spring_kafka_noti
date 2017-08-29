@@ -74,7 +74,7 @@ public class ElasticsearchUtils {
 		while (keys.hasNext()) {
 			String key = (String)keys.next();
 			if ( input.get(key) != null && !"*".equals(input.get(key)) ) {
-				boolQuery.must(QueryBuilders.termsQuery(key,input.get(key)));
+				boolQuery.must(QueryBuilders.termsQuery(key,input.getString(key).split(",")));
 			}
 		}
 		return boolQuery;
@@ -86,7 +86,7 @@ public class ElasticsearchUtils {
 		while (keys.hasNext()) {
 			String key = (String)keys.next();
 			if ( input.get(key) != null && !"*".equals(input.get(key)) ) {
-				boolQuery.filter(QueryBuilders.termsQuery(key,input.get(key)));
+				boolQuery.filter(QueryBuilders.termsQuery(key,input.getString(key).split(",")));
 			}
 		}
 		return boolQuery;
@@ -102,8 +102,8 @@ public class ElasticsearchUtils {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 		input.put("function.keyword", CATEGORY_FILTER_FUNCTION);
-
 		BoolQueryBuilder boolQuery = buildESSearchBoolFilterQuery(input);
+
 		if (boolQuery != null) {
 			boolQuery.must(QueryBuilders.queryStringQuery(FILTER_TERM));
 		}
