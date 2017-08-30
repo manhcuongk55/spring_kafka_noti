@@ -127,4 +127,16 @@ public class NotificationController {
 			throws org.json.simple.parser.ParseException, JSONException {
 		return elasticsearchUtils.getDevicesByDeviceVersion(deviceType, version).toString();
 	}
+	@CrossOrigin
+	@RequestMapping(value = "/get_number_deviceby_config_cate", method = RequestMethod.GET, produces = "application/json")
+	public int getTotalDevicesCateByConfig(@RequestParam(value = "inputSearch", defaultValue = "*") String inputSearch)
+			throws org.json.simple.parser.ParseException, JSONException {
+		return MultipleConsumersSendNotiService.getTotalDevicesByConfigCate(inputSearch);
+	}
+	@CrossOrigin
+	@RequestMapping(value = "/get_number_deviceby_config", method = RequestMethod.GET, produces = "application/json")
+	public int getTotalDevicesConfig(@RequestParam(value = "inputSearch", defaultValue = "*") String inputSearch)
+			throws org.json.simple.parser.ParseException, JSONException {
+		return MultipleConsumersSendNotiService.getTotalDevicesByConfig(inputSearch);
+	}
 }

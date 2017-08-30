@@ -29,3 +29,4 @@ public class CheckStatusController {
 		return checkStatus.checkStatusSendingBox(id);
 	}
 }
+

@@ -5,20 +5,19 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+
 @Entity
-@Table(name = "version_app")
-public class AppVersion {
-	
-	
+@Table(name = "version_ios_device")
+public class DeviceIosVersion {
 	private Integer id;
 	private String name;
 	
 	
 	
-	public AppVersion() {
+	public DeviceIosVersion() {
 		super();
 	}
-	public AppVersion(Integer id, String name) {
+	public DeviceIosVersion(Integer id, String name) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -37,7 +36,4 @@ public class AppVersion {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	
-
 }

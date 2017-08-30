@@ -192,7 +192,6 @@ public class NotificationProducerThread implements Runnable {
 			e2.printStackTrace();
 		}
 		Iterator<?> keys = input.keys();
-
 		while (keys.hasNext()) {
 			String key = (String) keys.next();
 			System.out.println("key ............. " + key);

@@ -1,5 +1,12 @@
 package vn.viettel.browser.test;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -12,14 +19,8 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import vn.viettel.browser.ultils.ElasticsearchUtils;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
+import vn.viettel.browser.ultils.ElasticsearchUtils;
 
 /**
  * Created by giang on 29/05/2017.

@@ -1,12 +1,13 @@
 package vn.viettel.browser.service;
 
+import java.util.Iterator;
 import java.util.Properties;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import com.mysql.fabric.xmlrpc.base.Array;
+import com.google.common.collect.Iterators;
 
 import vn.viettel.browser.kafka.NotificationConsumerGroup;
 import vn.viettel.browser.kafka.NotificationProducerThread;
@@ -28,24 +29,8 @@ public final class MultipleConsumersSendNotiService {
 	public String SendMess(String mess, int typeMess) throws JSONException {
 		// Start Notification Producer Thread
 		JSONObject messJson = new JSONObject(mess);
-		JSONObject input = new JSONObject();
+		JSONObject input = createInputSearch(mess);
 		String categoryId = "";
-		if (messJson.has("deviceType")) {
-			input.put("deviceType", messJson.get("deviceType"));
-		}
-		if (messJson.has("appVersion")) {
-			if (!messJson.getString("appVersion").trim().equals("[]")) {
-				String appVersion = HibernateUtils.getVersionAppFromKeyInDB(messJson.getString("appVersion"));
-				input.put("appVersion", appVersion);
-			}
-
-		}
-		if (messJson.has("deviceVersion")) {
-			if (!messJson.getString("deviceVersion").trim().equals("[]")) {
-				String deviceVersion = HibernateUtils.getVersionDeviceFromKeyInDB(messJson.getString("deviceVersion"));
-				input.put("deviceVersion", deviceVersion);
-			}
-		}
 		if (messJson.has("category")) {
 			categoryId = messJson.getString("category");
 		}
@@ -100,6 +85,94 @@ public final class MultipleConsumersSendNotiService {
 		props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 		props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 		return props;
+	}
+
+	public static int getTotalDevicesByConfigCate(String inputSearch) throws JSONException {
+		int total = 0;
+		JSONObject inputSearcJson = new JSONObject(inputSearch);
+		JSONObject input = new JSONObject();
+
+		try {
+			input = (JSONObject) elasticsearchUtils.getListDeviceIdsFromAllCategories(inputSearcJson).get("data");
+			System.out.println("input ............. " + input);
+		} catch (JSONException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
+		Iterator<?> keys = input.keys();
+		total = Iterators.size(keys);
+		return total;
+
+	}
+
+	public static int getTotalDevicesByConfig(String inputSearch) throws JSONException {
+		int total = 0;
+		JSONObject inputSearcJson = new JSONObject(inputSearch);
+		JSONObject input = new JSONObject();
+
+		try {
+			input = (JSONObject) elasticsearchUtils.getListAllDevices(inputSearcJson).get("data");
+			System.out.println("input ............. " + input);
+		} catch (JSONException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
+		Iterator<?> keys = input.keys();
+		total = Iterators.size(keys);
+		return total;
+
+	}
+
+	private static JSONObject createInputSearch(String mess) throws JSONException {
+		JSONObject messJson = new JSONObject(mess);
+		JSONObject input = new JSONObject();
+		if (messJson.has("deviceType")) {
+			if (messJson.getString("deviceType").trim().contains("android,ios")) {
+				input.put("deviceType", "*");
+			} else if (messJson.getString("deviceType").trim().contains("android")) {
+				input.put("deviceType", "android");
+			} else {
+				input.put("deviceType", "ios");
+			}
+		}
+		String appIosVersion = "";
+		String appAndroidVersion = "";
+		String appVersion = "";
+		if (messJson.has("appIosVersion")) {
+			if (!messJson.getString("appIosVersion").trim().equals("[]")) {
+				appIosVersion = HibernateUtils.getVersionIosAppFromKeyInDB(messJson.getString("appIosVersion"));
+			}
+
+		}
+		if (messJson.has("appAndroidVersion")) {
+			if (!messJson.getString("appAndroidVersion").trim().equals("[]")) {
+				appAndroidVersion = HibernateUtils.getVersionIosAppFromKeyInDB(messJson.getString("appAndroidVersion"));
+			}
+
+		}
+		appVersion = appAndroidVersion + "," + appIosVersion;
+		input.put("appVersion", appVersion);
+
+		String deviceAndroidVersion = "";
+		String deviceIosVersion = "";
+		String deviceVersion = "";
+		if (messJson.has("deviceAndroidVersion")) {
+			if (!messJson.getString("deviceAndroidVersion").trim().equals("[]")) {
+				deviceAndroidVersion = HibernateUtils
+						.getVersionAndroidDeviceFromKeyInDB(messJson.getString("deviceAndroidVersion"));
+			}
+		}
+		if (messJson.has("deviceIosVersion")) {
+			if (!messJson.getString("deviceIosVersion").trim().equals("[]")) {
+				deviceIosVersion = HibernateUtils
+						.getVersionAndroidDeviceFromKeyInDB(messJson.getString("deviceIosVersion"));
+			}
+		}
+		deviceVersion = deviceAndroidVersion + "," + deviceIosVersion;
+		input.put("deviceVersion", deviceVersion);
+		return input;
 	}
 
 }

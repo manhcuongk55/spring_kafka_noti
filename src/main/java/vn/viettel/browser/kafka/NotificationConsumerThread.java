@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import vn.viettel.browser.config.ProductionConfig;
 import vn.viettel.browser.ultils.ElasticsearchUtils;
 import vn.viettel.browser.ultils.FireBaseUtils;
 import vn.viettel.browser.ultils.JSONUtils;
@@ -25,7 +26,8 @@ public class NotificationConsumerThread implements Runnable {
 	private final JSONObject inputSearchListDevices;
 
 	public NotificationConsumerThread(String brokers, String groupId, String topic, String mess, int typeSend,
-			JSONObject inputSearchListDevices, ElasticsearchUtils elasticsearchUtils, Properties prop, JedisUtils jedisUtils) {
+			JSONObject inputSearchListDevices, ElasticsearchUtils elasticsearchUtils, Properties prop,
+			JedisUtils jedisUtils) {
 		this.consumer = new KafkaConsumer<>(prop);
 		this.topic = topic;
 		this.consumer.subscribe(Arrays.asList(this.topic));
@@ -35,6 +37,7 @@ public class NotificationConsumerThread implements Runnable {
 		this.elasticsearchUtils = elasticsearchUtils;
 		this.jedisUtils = jedisUtils;
 	}
+
 	@Override
 	public void run() {
 		if (this.typeMess == 0) {
@@ -44,6 +47,13 @@ public class NotificationConsumerThread implements Runnable {
 			String categoryId0 = "";
 			String idJob0 = "";
 			JSONObject mess0 = null;
+			int totalCount = 0;
+			try {
+				totalCount = elasticsearchUtils.getTotalDeviceByCategoryId(categoryId0, "*");
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			try {
 				resultsAndroid0 = JSONUtils.createJSonForAndroidNotification(this.mess);
 				resultsIos0 = JSONUtils.createJSonForIosNotification(this.mess);
@@ -75,18 +85,19 @@ public class NotificationConsumerThread implements Runnable {
 						try {
 							resultsAndroid0.put("to", key);
 							String rp = FireBaseUtils.pushNotificationToSingleDevice(resultsAndroid0);
-							total0++;
-							jedisUtils.set("sent_total" + idJob0,
-									total0 + "_" + elasticsearchUtils.getTotalDeviceByCategoryId(categoryId0, "*"));
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						System.out.println("@results_android : " + resultsAndroid0);
 					}
+					total0++;
+					jedisUtils.set("sent_total" + idJob0, total0 + "_" + totalCount);
 
 				}
-				jedisUtils.set("done" + idJob0, 1 + "");
+				if (total0 == totalCount) {
+					jedisUtils.set("done" + idJob0, 1 + "");
+				}
 			}
 
 		}
@@ -97,6 +108,7 @@ public class NotificationConsumerThread implements Runnable {
 			JSONObject resultsIos1 = null;
 			String idJob1 = "";
 			JSONObject mess1 = null;
+			int totalCount = elasticsearchUtils.getTotalDevice(this.inputSearchListDevices);
 			try {
 				resultsAndroid1 = JSONUtils.createJSonForAndroidNotification(this.mess);
 				resultsIos1 = JSONUtils.createJSonForIosNotification(this.mess);
@@ -128,18 +140,18 @@ public class NotificationConsumerThread implements Runnable {
 						try {
 							resultsAndroid1.put("to", key);
 							String rp = FireBaseUtils.pushNotificationToSingleDevice(resultsAndroid1);
-							total1++;
-							jedisUtils.set("sent_total" + idJob1,
-									total1 + "_" + elasticsearchUtils.getTotalDevice(this.inputSearchListDevices));
-
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						System.out.println("@results_android : " + resultsAndroid1);
 					}
+					total1++;
+					jedisUtils.set("sent_total" + idJob1, total1 + "_" + totalCount);
 				}
-				jedisUtils.set("done" + idJob1, 1 + "");
+				if (total1 == totalCount) {
+					jedisUtils.set("done" + idJob1, 1 + "");
+				}
 			}
 		} else if (this.typeMess == 2) {
 			int total2 = 0;
@@ -147,12 +159,15 @@ public class NotificationConsumerThread implements Runnable {
 			JSONObject results2 = new JSONObject();
 			JSONObject data2 = new JSONObject();
 			JSONObject notification2 = new JSONObject();
+			int totalCount = elasticsearchUtils.getTotalDevice(this.inputSearchListDevices);
+			String jobId = "";
 			try {
 				mess2 = new JSONObject(this.mess);
 				data2.put("content", mess2.getString("content"));
 				data2.put("title", mess2.getString("title"));
 				data2.put("type", mess2.getString("type"));
-				data2.put("jobId", mess2.getString("jobId"));
+				jobId = mess2.getString("jobId");
+				data2.put("jobId", jobId);
 				jedisUtils.set("done_box" + mess2.getString("jobId"), 0 + "");
 				jedisUtils.set("sent_total_box" + mess2.getString("jobId"),
 						total2 + "_" + elasticsearchUtils.getTotalDevice(this.inputSearchListDevices));
@@ -194,21 +209,17 @@ public class NotificationConsumerThread implements Runnable {
 							results2.put("to", key);
 							FireBaseUtils.pushNotificationToSingleDevice(results2);
 							System.out.println("@results_android : " + results2);
-							total2++;
-							jedisUtils.set("sent_total_box" + mess2.getString("jobId"),
-									total2 + "_" + elasticsearchUtils.getTotalDevice(this.inputSearchListDevices));
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 
 					}
+					total2++;
+					jedisUtils.set("sent_total_box" + jobId, total2 + "_" + totalCount);
 				}
-				try {
-					jedisUtils.set("done_box" + mess2.getString("jobId"), 1 + "");
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				if (total2 == totalCount) {
+					jedisUtils.set("done_box" + jobId, 1 + "");
 				}
 			}
 		} else if (this.typeMess == 3) {
@@ -218,12 +229,15 @@ public class NotificationConsumerThread implements Runnable {
 			JSONObject results3 = new JSONObject();
 			JSONObject notification3 = new JSONObject();
 			JSONObject mess3 = null;
+			int totalCount = elasticsearchUtils.getTotalDevice(this.inputSearchListDevices);
+			String jobId = "";
 			try {
 				mess3 = new JSONObject(this.mess);
 				data3.put("type", mess3.getString("type"));
 				data3.put("content", mess3.getString("content"));
 				data3.put("title", mess3.getString("title"));
-				data3.put("jobId", mess3.getString("jobId"));
+				jobId = mess3.getString("jobId");
+				data3.put("jobId", jobId);
 				results3.put("data", data3);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -257,22 +271,18 @@ public class NotificationConsumerThread implements Runnable {
 							System.out.println("key:android " + key);
 							FireBaseUtils.pushNotificationToSingleDevice(results3);
 							System.out.println("@results_android : " + results3);
-							total3++;
-							jedisUtils.set("sent_total_box" + mess3.getString("jobId"),
-									total3 + "_" + elasticsearchUtils.getTotalDevice(this.inputSearchListDevices));
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 
 					}
-					try {
-						jedisUtils.set("done_box" + mess3.getString("jobId"), 1 + "");
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					total3++;
+					jedisUtils.set("sent_total_box" + jobId, total3 + "_" + totalCount);
 
+				}
+				if (total3 == totalCount) {
+					jedisUtils.set("done_box" + jobId, 1 + "");
 				}
 			}
 
@@ -313,18 +323,18 @@ public class NotificationConsumerThread implements Runnable {
 							resultsAndroid4.put("to", key);
 							FireBaseUtils.pushNotificationToSingleDevice(resultsAndroid4);
 							System.out.println("@results_android : " + resultsAndroid4);
-							total4++;
-							jedisUtils.set("sent_total" + idJob4,
-									total4 + "_" + elasticsearchUtils.getTotalDevice(this.inputSearchListDevices));
-							System.out.println("@results_android : " + resultsAndroid4);
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
+					total4++;
+					jedisUtils.set("sent_total" + idJob4, total4 + "_" + ProductionConfig.TestFireBase.length);
 
 				}
-				jedisUtils.set("done" + idJob4, 1 + "");
+				if (total4 == ProductionConfig.TestFireBase.length) {
+					jedisUtils.set("done" + idJob4, 1 + "");
+				}
 			}
 		}
 
