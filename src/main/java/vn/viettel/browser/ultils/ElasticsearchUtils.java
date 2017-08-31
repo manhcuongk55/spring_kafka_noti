@@ -48,14 +48,23 @@ public class ElasticsearchUtils {
 
 	public ElasticsearchUtils() {
 		try {
-			/*this.esClient
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.69"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.70"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.71"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.72"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.73"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.74"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.75"), 9300));*/
+			/*
+			 * this.esClient .addTransportAddress(new
+			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.69")
+			 * , 9300)) .addTransportAddress(new
+			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.70")
+			 * , 9300)) .addTransportAddress(new
+			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.71")
+			 * , 9300)) .addTransportAddress(new
+			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.72")
+			 * , 9300)) .addTransportAddress(new
+			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.73")
+			 * , 9300)) .addTransportAddress(new
+			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.74")
+			 * , 9300)) .addTransportAddress(new
+			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.75")
+			 * , 9300));
+			 */
 			this.esClient
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.146"), 9300))
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.147"), 9300))
@@ -72,9 +81,9 @@ public class ElasticsearchUtils {
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 		Iterator<?> keys = input.keys();
 		while (keys.hasNext()) {
-			String key = (String)keys.next();
-			if ( input.get(key) != null && !"*".equals(input.get(key)) ) {
-				boolQuery.must(QueryBuilders.termsQuery(key,input.getString(key).split(",")));
+			String key = (String) keys.next();
+			if (input.get(key) != null && !"*".equals(input.get(key))) {
+				boolQuery.must(QueryBuilders.termsQuery(key, input.getString(key).split(",")));
 			}
 		}
 		return boolQuery;
@@ -84,15 +93,16 @@ public class ElasticsearchUtils {
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 		Iterator<?> keys = input.keys();
 		while (keys.hasNext()) {
-			String key = (String)keys.next();
-			if ( input.get(key) != null && !"*".equals(input.get(key)) ) {
-				boolQuery.filter(QueryBuilders.termsQuery(key,input.getString(key).split(",")));
+			String key = (String) keys.next();
+			if (input.get(key) != null && !"*".equals(input.get(key))) {
+				boolQuery.filter(QueryBuilders.termsQuery(key, input.getString(key).split(",")));
 			}
 		}
 		return boolQuery;
 	}
 
-	// input: {"function.keyword" : "postListArticlesByCategor", "deviceType" : device, "appVersion" : appVersion}
+	// input: {"function.keyword" : "postListArticlesByCategor", "deviceType" :
+	// device, "appVersion" : appVersion}
 
 	public JSONObject getListDeviceIdsFromAllCategories(JSONObject input) throws JSONException {
 		org.json.JSONObject data = new org.json.JSONObject();
@@ -131,7 +141,7 @@ public class ElasticsearchUtils {
 						String keyName = (String) it.next();
 						if (val.getLong(keyName) > maxValue) {
 							JSONObject obj = new JSONObject();
-							obj.put(keyName.replace(" " , ""), val.getLong(keyName));
+							obj.put(keyName.replace(" ", ""), val.getLong(keyName));
 							rows.put(k, obj);
 							maxValue = val.getLong(keyName);
 						}
@@ -163,8 +173,8 @@ public class ElasticsearchUtils {
 		}
 
 		SearchRequestBuilder query = esClient.prepareSearch(LOGGING_INDEX).setTypes("logs").setQuery(boolQuery)
-				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY)
-						.field("notificationId.keyword").size(MAX_DEVICES));
+				.addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY).field("notificationId.keyword")
+						.size(MAX_DEVICES));
 
 		SearchResponse response = query.setSize(0).execute().actionGet();
 
@@ -173,7 +183,7 @@ public class ElasticsearchUtils {
 			Collection<Terms.Bucket> buckets = agg.getBuckets();
 			for (Terms.Bucket b : buckets) {
 				if (b.getDocCount() != 0 && !b.getKeyAsString().equals("undefined")) {
-					data.put(b.getKeyAsString(),b.getDocCount());
+					data.put(b.getKeyAsString(), b.getDocCount());
 				}
 			}
 
@@ -328,10 +338,8 @@ public class ElasticsearchUtils {
 		return response;
 	}
 
-	public int getTotalDeviceByCategoryId(String categoryId, String device) throws JSONException {
+	public int getTotalDeviceByCategoryId(JSONObject inputSearch, String categoryId) throws JSONException {
 		int totalDevice = 0;
-		JSONObject inputSearch = new JSONObject();
-		inputSearch.put("device" , device);
 		try {
 			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories(inputSearch).get("data");
 			Iterator<?> keys = input.keys();
@@ -363,11 +371,12 @@ public class ElasticsearchUtils {
 		return count;
 	}
 
-	public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size, String device) throws JSONException {
+	public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size, String device)
+			throws JSONException {
 		JSONObject results = new JSONObject();
 		JSONObject metadata = new JSONObject();
 		JSONObject inputSearch = new JSONObject();
-		inputSearch.put("device",device);
+		inputSearch.put("device", device);
 		ArrayList<String> data = new ArrayList<>();
 		String categoryId = "categoryId:" + id;
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -448,10 +457,10 @@ public class ElasticsearchUtils {
 	public SearchResponse getDevicesByDeviceVersion(String deviceType, String version) {
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 		if (deviceType.equals("*")) {
-			boolQuery.must(QueryBuilders.termsQuery("deviceVersion",version))
+			boolQuery.must(QueryBuilders.termsQuery("deviceVersion", version))
 					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
 		} else {
-			boolQuery.must(QueryBuilders.termsQuery("deviceVersion",version))
+			boolQuery.must(QueryBuilders.termsQuery("deviceVersion", version))
 					.must(QueryBuilders.termQuery("deviceType", deviceType))
 					.must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
 		}

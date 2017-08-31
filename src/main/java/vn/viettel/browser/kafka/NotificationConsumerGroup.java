@@ -5,21 +5,21 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import vn.viettel.browser.Appplication;
+import vn.viettel.browser.service.MultipleConsumersSendNotiService;
 import vn.viettel.browser.ultils.ElasticsearchUtils;
 import vn.viettel.browser.ultils.JedisUtils;
 
 public final class NotificationConsumerGroup {
 	private List<NotificationConsumerThread> consumers;
 
-	public NotificationConsumerGroup(String brokers, String groupId, String topic, int numberOfConsumers,
-			String messInput, int typeMess, JSONObject input, ElasticsearchUtils elasticsearchUtils, Properties prop,
-			JedisUtils jedisUtils) {
+	public NotificationConsumerGroup() throws JSONException {
 		consumers = new ArrayList<>();
-		for (int i = 0; i < numberOfConsumers; i++) {
-			NotificationConsumerThread ncThread = new NotificationConsumerThread(brokers, groupId, topic, messInput,
-					typeMess, input, elasticsearchUtils, prop, jedisUtils);
+		for (int i = 0; i < Appplication.numberOfConsumer; i++) {
+			NotificationConsumerThread ncThread = new NotificationConsumerThread();
 			consumers.add(ncThread);
 		}
 	}

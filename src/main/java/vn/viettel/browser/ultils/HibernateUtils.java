@@ -64,10 +64,10 @@ public class HibernateUtils {
 			String sql = "Select e from " + DeviceAndroidVersion.class.getName() + " e " + " where e.id in "
 					+ key.replace("[", "(").replace("]", ")");
 
-			Query<DeviceIosVersion> query = session.createQuery(sql);
+			Query<DeviceAndroidVersion> query = session.createQuery(sql);
 			// Tạo đối tượng Query.
-			List<DeviceIosVersion> values = query.getResultList();
-			for (DeviceIosVersion emp : values) {
+			List<DeviceAndroidVersion> values = query.getResultList();
+			for (DeviceAndroidVersion emp : values) {
 				result = result + emp.getName() + ",";
 
 			}
@@ -100,10 +100,10 @@ public class HibernateUtils {
 			String sql = "Select e from " + AppAndroidVersion.class.getName() + " e " + " where e.id in "
 					+ key.replace("[", "(").replace("]", ")");
 
-			Query<AppIosVersion> query = session.createQuery(sql);
+			Query<AppAndroidVersion> query = session.createQuery(sql);
 			// Tạo đối tượng Query.
-			List<AppIosVersion> values = query.getResultList();
-			for (AppIosVersion emp : values) {
+			List<AppAndroidVersion> values = query.getResultList();
+			for (AppAndroidVersion emp : values) {
 				result = result + emp.getName() + ",";
 
 			}

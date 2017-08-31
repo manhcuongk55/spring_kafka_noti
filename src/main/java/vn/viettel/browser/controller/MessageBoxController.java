@@ -3,7 +3,6 @@ package vn.viettel.browser.controller;
 import javax.annotation.Resource;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import vn.viettel.browser.service.MessageBoxService;
 import vn.viettel.browser.service.MultipleConsumersSendNotiService;
 import vn.viettel.browser.ultils.ElasticsearchUtils;
 
@@ -38,14 +36,6 @@ public class MessageBoxController {
 			throws org.json.simple.parser.ParseException, JSONException {
 		return elasticsearchUtils.countNumberOfDeviceByVersion(device, version).toString();
 	}
-
-	/*@CrossOrigin
-	@RequestMapping(value = "/get_total_devices", method = RequestMethod.GET, produces = "application/json")
-	public String getTotalDevice(@RequestParam(value = "device", defaultValue = "*") String device,
-			@RequestParam(value = "version", defaultValue = "1.0.0") String version)
-			throws org.json.simple.parser.ParseException, JSONException {
-		return elasticsearchUtils.getTotalDevice() + "";
-	}*/
 
 	@CrossOrigin
 	@RequestMapping(value = "/send_mess_box", method = RequestMethod.POST, produces = "application/json")

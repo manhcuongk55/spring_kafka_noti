@@ -12,11 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import vn.viettel.browser.config.ProductionConfig;
 import vn.viettel.browser.service.MultipleConsumersSendNotiService;
-import vn.viettel.browser.service.NotificationService;
 import vn.viettel.browser.ultils.ElasticsearchUtils;
-import vn.viettel.browser.ultils.FireBaseUtils;
 
 @RestController
 @RequestMapping("/user")
@@ -33,13 +30,6 @@ public class NotificationController {
 		return multipleConsumersSendNotiService.SendMess(notification, 0);
 	}
 
-	@CrossOrigin
-	@RequestMapping(value = "/send_mess_test", method = RequestMethod.POST, produces = "application/json")
-	@ResponseBody
-	public String sendNotifiForTest(@RequestBody String notification) throws Exception {
-		System.out.println("@RequestBody : " + notification);
-		return FireBaseUtils.pushNotificationToSingleDevice(new JSONObject(notification));
-	}
 
 	@CrossOrigin
 	@RequestMapping(value = "/notification_clicks", method = RequestMethod.GET, produces = "application/json")
@@ -104,23 +94,6 @@ public class NotificationController {
 	}
 
 	@CrossOrigin
-	@RequestMapping(value = "/get_total_devices_by_cate", method = RequestMethod.GET, produces = "application/json")
-	public int getTotalDeviesByCate(@RequestParam(value = "categoryId", defaultValue = "2") String categoryId,
-			@RequestParam(value = "device", defaultValue = "*") String device)
-			throws org.json.simple.parser.ParseException, JSONException {
-		return elasticsearchUtils.getTotalDeviceByCategoryId(categoryId, device);
-	}
-
-	/*
-	 * @CrossOrigin
-	 * 
-	 * @RequestMapping(value = "/count_total_devices", method =
-	 * RequestMethod.GET, produces = "application/json") public int
-	 * countTotalDevices() throws org.json.simple.parser.ParseException { return
-	 * elasticsearchUtils.getTotalDevice(); }
-	 */
-
-	@CrossOrigin
 	@RequestMapping(value = "/get_list_device_by_version", method = RequestMethod.GET, produces = "application/json")
 	public String getListDeviceByVersion(@RequestParam(value = "deviceType", defaultValue = "*") String deviceType,
 			@RequestParam(value = "version", defaultValue = "*") String version)
@@ -131,12 +104,12 @@ public class NotificationController {
 	@RequestMapping(value = "/get_number_deviceby_config_cate", method = RequestMethod.GET, produces = "application/json")
 	public int getTotalDevicesCateByConfig(@RequestParam(value = "inputSearch", defaultValue = "*") String inputSearch)
 			throws org.json.simple.parser.ParseException, JSONException {
-		return MultipleConsumersSendNotiService.getTotalDevicesByConfigCate(inputSearch);
+		return MultipleConsumersSendNotiService.getTotalDevicesByConfigCate(new JSONObject(inputSearch));
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_number_deviceby_config", method = RequestMethod.GET, produces = "application/json")
 	public int getTotalDevicesConfig(@RequestParam(value = "inputSearch", defaultValue = "*") String inputSearch)
 			throws org.json.simple.parser.ParseException, JSONException {
-		return MultipleConsumersSendNotiService.getTotalDevicesByConfig(inputSearch);
+		return MultipleConsumersSendNotiService.getTotalDevicesByConfig(new JSONObject(inputSearch));
 	}
 }
