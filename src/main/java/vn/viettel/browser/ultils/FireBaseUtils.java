@@ -9,7 +9,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.json.JSONObject;
 
-import vn.viettel.browser.Appplication;
+import vn.viettel.browser.Application;
 import vn.viettel.browser.service.MultipleConsumersSendNotiService;
 
 public class FireBaseUtils {
@@ -55,10 +55,8 @@ public class FireBaseUtils {
 	public static String pushNotificationToSingleDevice(JSONObject mess) throws Exception {
 		String idJob = mess.getString("idJob");
 		String totalCount = mess.getString("totalCount");
-		String typeMess = mess.getString("typeMess");
 		mess.remove("idJob");
 		mess.remove("totalCount");
-		mess.remove("typeMess");
 		URL obj = new URL(FIREBASE_URL);
 		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 		// add reuqest header
@@ -76,18 +74,10 @@ public class FireBaseUtils {
 
 		int responseCode = con.getResponseCode();
 		if (responseCode == 200) {
-			if("0".equals(typeMess) || "1".equals(typeMess)||"4".equals(typeMess)){
-				int count = (Integer.parseInt(Appplication.jedisUtils.get("sent" + idJob)) + 1);
-				Appplication.jedisUtils.set("sent" + idJob, count + "");
-				Appplication.jedisUtils.set("sent_total" + idJob,
-						Appplication.jedisUtils.get("sent" + idJob) + "_" + totalCount);
-			}else{
-				int count = (Integer.parseInt(Appplication.jedisUtils.get("sent_box" + idJob)) + 1);
-				Appplication.jedisUtils.set("sent_box" + idJob, count + "");
-				Appplication.jedisUtils.set("sent_total_box" + idJob,
-						Appplication.jedisUtils.get("sent_box" + idJob) + "_" + totalCount);
-			}
-			
+			Application.jedisUtils.set("sent" + idJob, (Integer.parseInt(Application.jedisUtils.get("sent" + idJob)) + 1) + "");
+			Application.jedisUtils.set("sent_total" + idJob,
+					Application.jedisUtils.get("sent" + idJob) + "_" + totalCount);
+
 		}
 		System.out.println("\nSending 'POST' request to URL : " + FIREBASE_URL);
 		System.out.println("Response Code : " + responseCode);
@@ -104,7 +94,11 @@ public class FireBaseUtils {
 			// TODO: handle exception
 		}
 		// print result
-		System.out.println(response.toString());
+		JSONObject responseJson = new JSONObject(response.toString());
+		if(responseJson.getInt("success") == 1){
+			Application.jedisUtils.set("received" + idJob, (Integer.parseInt(Application.jedisUtils.get("received" + idJob)) + 1) + "");
+		}
+		System.out.println(responseJson.toString());
 		return response.toString();
 	}
 

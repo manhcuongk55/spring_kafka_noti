@@ -6,7 +6,9 @@ import java.util.Properties;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.json.JSONException;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,13 +17,17 @@ import vn.viettel.browser.ultils.ElasticsearchUtils;
 import vn.viettel.browser.ultils.JedisUtils;
 
 @SpringBootApplication
-@ComponentScan(basePackages = { "vn.com" })
+@EnableAutoConfiguration
+@ComponentScan
 @Configuration
-public class Appplication {
-	public static final String brokers = "localhost:9092";
+@EnableCaching
+public class Application {
+	public static final String brokers = "10.240.152.149:6667";
+	//public static final String brokers = "localhost:9092";
+
 	public static final String groupId = "group05";
-	public static final String topic = "cuong1";
-	public static final int numberOfConsumer = 10;
+	public static final String topic = "notification";
+	public static final int numberOfConsumer = 1000;
 	public static ElasticsearchUtils elasticsearchUtils;
 	public static Properties propConsum;
 	public static Properties propPro;
@@ -29,7 +35,7 @@ public class Appplication {
 	public static KafkaProducer<String, String> producer;
 
 	public static void main(String[] args) throws IOException, JSONException {
-		SpringApplication.run(Appplication.class, args);
+		SpringApplication.run(Application.class, args);
 		propPro = createProducerConfig(brokers);
 		propConsum = createConsumerConfig(brokers, groupId);
 		producer = new KafkaProducer<String, String>(propPro);
@@ -48,7 +54,7 @@ public class Appplication {
 		props.put("enable.auto.commit", "true");
 		props.put("auto.commit.interval.ms", "1000");
 		props.put("session.timeout.ms", "300000");
-		props.put("request.timeout.ms", "3000000");
+		props.put("request.timeout.ms", "30000000");
 		props.put("auto.offset.reset", "earliest");
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");

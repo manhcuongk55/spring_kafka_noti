@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import vn.viettel.browser.Application;
 import vn.viettel.browser.service.MultipleConsumersSendNotiService;
 import vn.viettel.browser.ultils.ElasticsearchUtils;
 
 @RestController
 @RequestMapping("/user")
 public class MessageBoxController {
-	ElasticsearchUtils elasticsearchUtils = new ElasticsearchUtils();
 	@Resource
 	private MultipleConsumersSendNotiService multipleConsumersSendNotiService;
 
@@ -26,7 +26,7 @@ public class MessageBoxController {
 	public String sendMessToDevice(@RequestParam(value = "device", defaultValue = "*") String device,
 			@RequestParam(value = "version", defaultValue = "1.0.0") String version)
 			throws org.json.simple.parser.ParseException, JSONException {
-		return elasticsearchUtils.getListDeviceByVersion(device, version).toString();
+		return Application.elasticsearchUtils.getListDeviceByVersion(device, version).toString();
 	}
 
 	@CrossOrigin
@@ -34,23 +34,24 @@ public class MessageBoxController {
 	public String countDeviceByVersion(@RequestParam(value = "device", defaultValue = "*") String device,
 			@RequestParam(value = "version", defaultValue = "1.0.0") String version)
 			throws org.json.simple.parser.ParseException, JSONException {
-		return elasticsearchUtils.countNumberOfDeviceByVersion(device, version).toString();
+		return Application.elasticsearchUtils.countNumberOfDeviceByVersion(device, version).toString();
 	}
 
 	@CrossOrigin
 	@RequestMapping(value = "/send_mess_box", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
-	public void sendMess(@RequestBody String message) throws Exception {
-		multipleConsumersSendNotiService.SendMess(message, 2);
+	public String sendMess(@RequestBody String message) throws Exception {
+		System.out.println("@RequestBody : " + message);
+		return multipleConsumersSendNotiService.SendMess(message, 2);
 
 	}
 
 	@CrossOrigin
 	@RequestMapping(value = "/send_mess_box_all", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
-	public void sendMessToAll(@RequestBody String message) throws Exception {
+	public String sendMessToAll(@RequestBody String message) throws Exception {
 		System.out.println("@RequestBody : " + message);
-		multipleConsumersSendNotiService.SendMess(message, 3);
+		return multipleConsumersSendNotiService.SendMess(message, 3);
 	}
 
 }

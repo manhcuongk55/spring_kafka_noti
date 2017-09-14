@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import vn.viettel.browser.Appplication;
+import vn.viettel.browser.Application;
 import vn.viettel.browser.service.MultipleConsumersSendNotiService;
 import vn.viettel.browser.ultils.ElasticsearchUtils;
 import vn.viettel.browser.ultils.JedisUtils;
@@ -18,7 +18,7 @@ public final class NotificationConsumerGroup {
 
 	public NotificationConsumerGroup() throws JSONException {
 		consumers = new ArrayList<>();
-		for (int i = 0; i < Appplication.numberOfConsumer; i++) {
+		for (int i = 0; i < Application.numberOfConsumer; i++) {
 			NotificationConsumerThread ncThread = new NotificationConsumerThread();
 			consumers.add(ncThread);
 		}

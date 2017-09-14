@@ -178,7 +178,9 @@ public class HibernateUtils {
 				result = result + emp.getName() + ",";
 
 			}
-			result = result.substring(0, result.length() - 1);
+			if(result.length() > 1){
+				result = result.substring(0, result.length() - 1);
+			}
 			// Commit dữ liệu
 			session.getTransaction().commit();
 		} catch (Exception e) {

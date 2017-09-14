@@ -23,10 +23,5 @@ public class CheckStatusController {
 		return checkStatus.checkStatusSending(id);
 	}
 
-	@CrossOrigin
-	@RequestMapping(value = "/checkStatusBox", method = RequestMethod.POST, produces = "application/json")
-	public String checkStatusBox(@RequestBody String id) throws org.json.simple.parser.ParseException, JSONException {
-		return checkStatus.checkStatusSendingBox(id);
-	}
 }
 
