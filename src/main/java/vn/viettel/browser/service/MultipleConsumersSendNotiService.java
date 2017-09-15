@@ -221,8 +221,8 @@ public final class MultipleConsumersSendNotiService {
 								if (e != null) {
 									e.printStackTrace();
 								}
-								/*System.out.println("Sent:" + resultsIos + ", Partition: " + metadata.partition()
-										+ ", Offset: " + metadata.offset());*/
+								System.out.println("Sent:" + resultsIos + ", Partition: " + metadata.partition()
+										+ ", Offset: " + metadata.offset());
 							}
 						});
 			} else {
@@ -234,8 +234,8 @@ public final class MultipleConsumersSendNotiService {
 								if (e != null) {
 									e.printStackTrace();
 								}
-								/*System.out.println("Sent:" + resultsAndroid + ", Partition: " + metadata.partition()
-										+ ", Offset: " + metadata.offset());*/
+								System.out.println("Sent:" + resultsAndroid + ", Partition: " + metadata.partition()
+										+ ", Offset: " + metadata.offset());
 							}
 						});
 			}

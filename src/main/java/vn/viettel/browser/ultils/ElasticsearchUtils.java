@@ -72,6 +72,9 @@ public class ElasticsearchUtils {
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.149"), 9300))
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.150"), 9300))
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.151"), 9300));
+			/*this.esClient
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.69"), 9300))
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.70"), 9300));*/
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
