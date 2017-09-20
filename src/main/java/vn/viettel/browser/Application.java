@@ -22,10 +22,10 @@ import vn.viettel.browser.ultils.JedisUtils;
 @Configuration
 @EnableCaching
 public class Application {
-	public static final String brokers = "10.240.152.149:6667";
+	public static final String brokers = "lab04:6667";
 	//public static final String brokers = "localhost:9092";
 
-	public static final String groupId = "group05";
+	public static final String groupId = "group01";
 	public static final String topic = "notification";
 	public static final int numberOfConsumer = 100;
 	public static ElasticsearchUtils elasticsearchUtils;
@@ -44,18 +44,14 @@ public class Application {
 		// Start group of Notification Consumers
 		NotificationConsumerGroup consumerGroup = new NotificationConsumerGroup();
 		consumerGroup.execute();
-
 	}
 
 	private static Properties createConsumerConfig(String brokers, String groupId) {
 		Properties props = new Properties();
 		props.put("bootstrap.servers", brokers);
 		props.put("group.id", groupId);
-		props.put("enable.auto.commit", "true");
-		props.put("auto.commit.interval.ms", "1000");
-		props.put("session.timeout.ms", "300000");
-		props.put("request.timeout.ms", "30000000");
-		props.put("auto.offset.reset", "earliest");
+		//props.put("enable.auto.commit", "true");
+		//props.put("auto.commit.interval.ms", "1000");
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		return props;
@@ -66,6 +62,8 @@ public class Application {
 		props.put("bootstrap.servers", brokers);
 		props.put("acks", "all");
 		props.put("retries", 0);
+		props.put("metadata.fetch.timeout.ms", "3000");
+		props.put("request.timeout.ms", "300000");
 		props.put("batch.size", 16384);
 		props.put("linger.ms", 1);
 		props.put("buffer.memory", 33554432);
