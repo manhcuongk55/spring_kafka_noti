@@ -27,7 +27,7 @@ public class Application {
 
 	public static final String groupId = "group05";
 	public static final String topic = "notification";
-	public static final int numberOfConsumer = 1000;
+	public static final int numberOfConsumer = 100;
 	public static ElasticsearchUtils elasticsearchUtils;
 	public static Properties propConsum;
 	public static Properties propPro;

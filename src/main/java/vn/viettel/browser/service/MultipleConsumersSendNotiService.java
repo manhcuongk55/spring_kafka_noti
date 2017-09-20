@@ -33,6 +33,8 @@ public final class MultipleConsumersSendNotiService {
 		JSONObject notification = new JSONObject();
 		messJson = new JSONObject(mess);
 		JSONObject inputSearchListDevices = createInputSearch(mess);
+		//System.out.println(inputSearchListDevices);
+		//return "";
 		String categoryId = "";
 		if (messJson.has("category")) {
 			categoryId = messJson.getString("category");
@@ -44,7 +46,7 @@ public final class MultipleConsumersSendNotiService {
 			idJob = messJson.getString("articleId");
 			categoryId = "categoryId:" + messJson.getString("category");
 			totalCount = Application.elasticsearchUtils.getTotalDeviceByCategoryId(inputSearchListDevices, categoryId);
-			if(totalCount == 0){
+			if (totalCount == 0) {
 				info.put("mess", messJson);
 				info.put("totalCount_devices", totalCount);
 				return info.toString();
@@ -63,7 +65,7 @@ public final class MultipleConsumersSendNotiService {
 			messJson = new JSONObject(mess);
 			idJob = messJson.getString("articleId");
 			totalCount = Application.elasticsearchUtils.getTotalDevice(inputSearchListDevices);
-			if(totalCount == 0){
+			if (totalCount == 0) {
 				info.put("mess", messJson);
 				info.put("totalCount_devices", totalCount);
 				return info.toString();
@@ -78,7 +80,7 @@ public final class MultipleConsumersSendNotiService {
 			getAllDevicesToSendNotification(inputSearchListDevices, resultsIos, resultsAndroid);
 		} else if (typeMess == 2) {
 			totalCount = Application.elasticsearchUtils.getTotalDevice(inputSearchListDevices);
-			if(totalCount == 0){
+			if (totalCount == 0) {
 				info.put("mess", messJson);
 				info.put("totalCount_devices", totalCount);
 				return info.toString();
@@ -97,7 +99,7 @@ public final class MultipleConsumersSendNotiService {
 			getListDeviceToSendMessByConfig(inputSearchListDevices, results, data, notification, messJson);
 		} else if (typeMess == 3) {
 			totalCount = Application.elasticsearchUtils.getTotalDevice(inputSearchListDevices);
-			if(totalCount == 0){
+			if (totalCount == 0) {
 				info.put("mess", messJson);
 				info.put("totalCount_devices", totalCount);
 				return info.toString();
@@ -120,7 +122,7 @@ public final class MultipleConsumersSendNotiService {
 			messJson = new JSONObject(mess);
 			idJob = messJson.getString("articleId");
 			totalCount = ProductionConfig.TestFireBase.length;
-			if(totalCount == 0){
+			if (totalCount == 0) {
 				info.put("mess", messJson);
 				info.put("totalCount_devices", totalCount);
 				return info.toString();
@@ -182,6 +184,7 @@ public final class MultipleConsumersSendNotiService {
 					Application.producer.send(
 							new ProducerRecord<String, String>(Application.topic, resultsAndroid.toString()),
 							new Callback() {
+
 								public void onCompletion(RecordMetadata metadata, Exception e) {
 									if (e != null) {
 										e.printStackTrace();
@@ -189,6 +192,7 @@ public final class MultipleConsumersSendNotiService {
 									System.out.println("Sent:" + resultsAndroid + ", Partition: " + metadata.partition()
 											+ ", Offset: " + metadata.offset());
 								}
+
 							});
 				}
 
@@ -215,14 +219,14 @@ public final class MultipleConsumersSendNotiService {
 			if (key.contains("ios")) {
 				key.replace("ios", "");
 				resultsIos.put("to", key);
-				Application.producer.send(
-						new ProducerRecord<String, String>(Application.topic, resultsIos.toString()), new Callback() {
+				Application.producer.send(new ProducerRecord<String, String>(Application.topic, resultsIos.toString()),
+						new Callback() {
 							public void onCompletion(RecordMetadata metadata, Exception e) {
 								if (e != null) {
 									e.printStackTrace();
 								}
-								/*System.out.println("Sent:" + resultsIos + ", Partition: " + metadata.partition()
-										+ ", Offset: " + metadata.offset());*/
+								System.out.println("Sent:" + resultsIos + ", Partition: " + metadata.partition()
+										+ ", Offset: " + metadata.offset());
 							}
 						});
 			} else {
@@ -230,13 +234,15 @@ public final class MultipleConsumersSendNotiService {
 				Application.producer.send(
 						new ProducerRecord<String, String>(Application.topic, resultsAndroid.toString()),
 						new Callback() {
+
 							public void onCompletion(RecordMetadata metadata, Exception e) {
 								if (e != null) {
 									e.printStackTrace();
 								}
-								/*System.out.println("Sent:" + resultsAndroid + ", Partition: " + metadata.partition()
-										+ ", Offset: " + metadata.offset());*/
+								System.out.println("Sent:" + resultsAndroid + ", Partition: " + metadata.partition()
+										+ ", Offset: " + metadata.offset());
 							}
+
 						});
 			}
 
@@ -251,8 +257,8 @@ public final class MultipleConsumersSendNotiService {
 			if (key.contains("ios")) {
 				key.replace("ios", "");
 				resultsIos.put("to", key);
-				Application.producer.send(
-						new ProducerRecord<String, String>(Application.topic, resultsIos.toString()), new Callback() {
+				Application.producer.send(new ProducerRecord<String, String>(Application.topic, resultsIos.toString()),
+						new Callback() {
 							public void onCompletion(RecordMetadata metadata, Exception e) {
 								if (e != null) {
 									e.printStackTrace();
@@ -266,6 +272,7 @@ public final class MultipleConsumersSendNotiService {
 				Application.producer.send(
 						new ProducerRecord<String, String>(Application.topic, resultsAndroid.toString()),
 						new Callback() {
+
 							public void onCompletion(RecordMetadata metadata, Exception e) {
 								if (e != null) {
 									e.printStackTrace();
@@ -273,6 +280,7 @@ public final class MultipleConsumersSendNotiService {
 								System.out.println("Sent:" + resultsAndroid + ", Partition: " + metadata.partition()
 										+ ", Offset: " + metadata.offset());
 							}
+
 						});
 			}
 
@@ -399,67 +407,84 @@ public final class MultipleConsumersSendNotiService {
 
 	private static JSONObject createInputSearch(String mess) throws JSONException {
 		JSONObject messJson = new JSONObject(mess);
+
+		// create JsonSearch
 		JSONObject input = new JSONObject();
-		if (messJson.has("deviceType")) {
-			if (messJson.getString("deviceType").trim().contains("android,ios")) {
-				input.put("deviceType", "*");
-			} else if (messJson.getString("deviceType").trim().contains("android")) {
-				input.put("deviceType", "android");
-			} else {
-				input.put("deviceType", "ios");
-			}
-		}
+		String deviceType = "";
+		String deviceVersion = "";
+
+		// parse JsonInput from CMS
+		String appVersion = "";
 		String appIosVersion = "";
 		String appAndroidVersion = "";
-		String appVersion = "";
-		if (messJson.has("appIosVersion")) {
-			if (!messJson.getString("appIosVersion").trim().equals("[]")) {
-				appIosVersion = HibernateUtils.getVersionIosAppFromKeyInDB(messJson.getString("appIosVersion"));
-			}
-
-		}
-		if (messJson.has("appAndroidVersion")) {
-			if (!messJson.getString("appAndroidVersion").trim().equals("[]")) {
-				appAndroidVersion = HibernateUtils
-						.getVersionAndroidAppFromKeyInDB(messJson.getString("appAndroidVersion"));
-			}
-
-		}
-		if (!appAndroidVersion.isEmpty() && !appIosVersion.isEmpty()) {
-			appVersion = appAndroidVersion + "," + appIosVersion;
-		} else if (!appAndroidVersion.isEmpty()) {
-			appVersion = appAndroidVersion;
-		} else {
-			appVersion = appIosVersion;
-		}
-		if (!appVersion.isEmpty()) {
-			input.put("appVersion", appVersion);
-		}
 		String deviceAndroidVersion = "";
 		String deviceIosVersion = "";
-		String deviceVersion = "";
-		if (messJson.has("deviceAndroidVersion")) {
-			if (!messJson.getString("deviceAndroidVersion").trim().equals("[]")) {
-				deviceAndroidVersion = HibernateUtils
-						.getVersionAndroidDeviceFromKeyInDB(messJson.getString("deviceAndroidVersion"));
+
+		if (messJson.has("deviceType")) {
+			if (messJson.getString("deviceType").trim().contains("android,ios")) {
+				deviceType = "*";
+			} else if (messJson.getString("deviceType").trim().contains("android")) {
+				deviceType = "android";
+			} else {
+				deviceType = "ios";
 			}
 		}
-		if (messJson.has("deviceIosVersion")) {
-			if (!messJson.getString("deviceIosVersion").trim().equals("[]")) {
-				deviceIosVersion = HibernateUtils
-						.getVersionIosDeviceFromKeyInDB(messJson.getString("deviceIosVersion"));
+		if (messJson.getString("appAndroidVersion").trim().equals("[-1]")) {
+			if (messJson.getString("appIosVersion").trim().equals("[-1]")) {
+				appVersion = null;
+			} else if (messJson.getString("appIosVersion").trim().equals("[0]")) {
+				System.out.println("abcxhusdbfj");
+				appVersion = "*";
 			}
-		}
-		if (!deviceAndroidVersion.isEmpty() && !deviceIosVersion.isEmpty()) {
-			deviceVersion = deviceAndroidVersion + "," + deviceIosVersion;
-		} else if (!deviceAndroidVersion.isEmpty()) {
-			deviceVersion = deviceAndroidVersion;
+
+		} else if (messJson.getString("appAndroidVersion").trim().equals("[0]")) {
+			appVersion = "*";
 		} else {
-			deviceVersion = deviceIosVersion;
+			if (!messJson.getString("appIosVersion").trim().equals("[-1]")) {
+				appIosVersion = HibernateUtils.getVersionIosAppFromKeyInDB(messJson.getString("appIosVersion"));
+			}
+			
+			appAndroidVersion = HibernateUtils.getVersionAndroidAppFromKeyInDB(messJson.getString("appAndroidVersion"));
+			if (!appAndroidVersion.isEmpty() && !appIosVersion.isEmpty()) {
+				appVersion = appAndroidVersion + "," + appIosVersion;
+			} else if (appAndroidVersion.isEmpty()) {
+				appVersion = appIosVersion;
+			} else {
+				appVersion = appAndroidVersion;
+			}
 		}
-		if (!deviceVersion.isEmpty()) {
+
+		if (messJson.getString("deviceAndroidVersion").trim().equals("[-1]")) {
+			if (messJson.getString("deviceIosVersion").trim().equals("[-1]")) {
+				deviceVersion = null;
+			} else if (messJson.getString("deviceIosVersion").trim().equals("[0]")) {
+				deviceVersion = "*";
+			}
+
+		} else if (messJson.getString("deviceAndroidVersion").trim().equals("[0]")) {
+			deviceVersion = "*";
+		} else {
+			if (!messJson.getString("deviceIosVersion").trim().equals("[-1]")) {
+				deviceIosVersion = HibernateUtils.getVersionIosDeviceFromKeyInDB(messJson.getString("deviceIosVersion"));
+			}
+			
+			deviceAndroidVersion = HibernateUtils.getVersionAndroidDeviceFromKeyInDB(messJson.getString("deviceAndroidVersion"));
+			if (!deviceAndroidVersion.isEmpty() && !deviceIosVersion.isEmpty()) {
+				deviceVersion = deviceAndroidVersion + "," + deviceIosVersion;
+			} else if (deviceAndroidVersion.isEmpty()) {
+				deviceVersion = deviceIosVersion;
+			} else {
+				deviceVersion = deviceAndroidVersion;
+			}
+		}
+		if (appVersion != null) {
+			input.put("appVersion", appVersion);
+		} 
+		if (deviceVersion != null) {
 			input.put("deviceVersion", deviceVersion);
 		}
+		input.put("deviceType", deviceType);
+		
 		return input;
 	}
 }
