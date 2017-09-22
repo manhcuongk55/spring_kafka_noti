@@ -11,22 +11,13 @@ import vn.viettel.browser.ultils.JedisUtils;
 public class CheckStatusService {
 	public String checkStatusSending(String id) throws JSONException {
 		JSONObject JsonId = new JSONObject(id);
-		id = JsonId.getString("jobId");
+		String jobId = JsonId.getString("jobId");
 		JSONObject reponses = new JSONObject();
-		String sent_total = Application.jedisUtils.get("sent_total"+ id);
-		String received = Application.jedisUtils.get("received"+ id);
+		String sent_total = Application.jedisUtils.get("sent_total"+ jobId);
+		String received = Application.jedisUtils.get("received"+ jobId);
 		reponses.put("sent_total",sent_total + "");
-		reponses.put("jobId", id + "");
+		reponses.put("jobId", jobId + "");
 		reponses.put("received", received + "");
 		return reponses.toString();
 	}
-	/*public String checkStatusSendingBox(String id) throws JSONException {
-		JSONObject JsonId = new JSONObject(id);
-		id = JsonId.getString("jobId");
-		JSONObject reponses = new JSONObject();
-		String sent_total_box = jedisUtils.get("sent_total_box" + id);
-		reponses.put("sent_total_box",sent_total_box + "" );
-		reponses.put("jobId_box", id + "");
-		return reponses.toString();
-	}*/
 }

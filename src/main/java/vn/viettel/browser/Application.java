@@ -22,11 +22,11 @@ import vn.viettel.browser.ultils.JedisUtils;
 @Configuration
 @EnableCaching
 public class Application {
+	//public static final String brokers = "10.240.152.11:6667";
 	public static final String brokers = "lab04:6667";
-	//public static final String brokers = "localhost:9092";
 
-	public static final String groupId = "group01";
-	public static final String topic = "notification";
+	public static final String groupId 	= "group01";
+	public static final String topic 	= "notification";
 	public static final int numberOfConsumer = 100;
 	public static ElasticsearchUtils elasticsearchUtils;
 	public static Properties propConsum;
@@ -50,6 +50,7 @@ public class Application {
 		Properties props = new Properties();
 		props.put("bootstrap.servers", brokers);
 		props.put("group.id", groupId);
+		props.put("auto.offset.reset", "earliest");
 		//props.put("enable.auto.commit", "true");
 		//props.put("auto.commit.interval.ms", "1000");
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -60,13 +61,13 @@ public class Application {
 	private static Properties createProducerConfig(String brokers) {
 		Properties props = new Properties();
 		props.put("bootstrap.servers", brokers);
-		props.put("acks", "all");
+		/*props.put("acks", "all");
 		props.put("retries", 0);
 		props.put("metadata.fetch.timeout.ms", "3000");
 		props.put("request.timeout.ms", "300000");
 		props.put("batch.size", 16384);
 		props.put("linger.ms", 1);
-		props.put("buffer.memory", 33554432);
+		props.put("buffer.memory", 33554432);*/
 		props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 		props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 		return props;

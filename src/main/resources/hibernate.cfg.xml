@@ -12,7 +12,11 @@
         <!--<property name="connection.username">quytx</property>-->
         <!--<property name="connection.password">123456</property>-->
 
-        <property name="connection.url">jdbc:mysql://10.240.152.152:3306/webnewsdb?serverTimezone=UTC&amp;autoReconnect=true&amp;useSSL=false&amp;useUnicode=yes&amp;characterEncoding=UTF-8</property>
+        <!--<property name="connection.url">jdbc:mysql://10.240.152.10:3307/webnewsdb?serverTimezone=UTC&amp;autoReconnect=true&amp;useSSL=false&amp;useUnicode=yes&amp;characterEncoding=UTF-8</property>
+        <property name="connection.username">webacc</property>
+        <property name="connection.password">LDGP85387398342*437122**</property>-->
+
+        <property name="connection.url">jdbc:mysql://10.240.152.152:3306/webnewsdb?serverTimezone=UTC&amp;autoReconnect=true</property>
         <property name="connection.username">sfive_lab</property>
         <property name="connection.password">Jferhrbfdlhu**</property>
 

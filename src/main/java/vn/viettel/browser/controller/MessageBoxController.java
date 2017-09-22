@@ -12,14 +12,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import vn.viettel.browser.Application;
-import vn.viettel.browser.service.MultipleConsumersSendNotiService;
-import vn.viettel.browser.ultils.ElasticsearchUtils;
+import vn.viettel.browser.service.ProducerPutMessKafkaNotiService;
 
 @RestController
 @RequestMapping("/user")
 public class MessageBoxController {
 	@Resource
-	private MultipleConsumersSendNotiService multipleConsumersSendNotiService;
+	private ProducerPutMessKafkaNotiService producerPutMessKafkaNotiService;
 
 	@CrossOrigin
 	@RequestMapping(value = "/get_devices_by_version", method = RequestMethod.GET, produces = "application/json")
@@ -42,7 +41,7 @@ public class MessageBoxController {
 	@ResponseBody
 	public String sendMess(@RequestBody String message) throws Exception {
 		System.out.println("@RequestBody : " + message);
-		return multipleConsumersSendNotiService.SendMess(message, 2);
+		return producerPutMessKafkaNotiService.SendMess(message, 2);
 
 	}
 
@@ -51,7 +50,7 @@ public class MessageBoxController {
 	@ResponseBody
 	public String sendMessToAll(@RequestBody String message) throws Exception {
 		System.out.println("@RequestBody : " + message);
-		return multipleConsumersSendNotiService.SendMess(message, 3);
+		return producerPutMessKafkaNotiService.SendMess(message, 3);
 	}
 
 }
