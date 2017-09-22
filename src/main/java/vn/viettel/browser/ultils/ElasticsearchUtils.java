@@ -44,27 +44,27 @@ public class ElasticsearchUtils {
 	private static final int MAX_DEVICES = 1000000;
 	static Settings settings = Settings.builder().put("cluster.name", "browserlabs").put("client.transport.sniff", true)
 			.build();
+	/*static Settings settings = Settings.builder().put("cluster.name", "sfive").put("client.transport.sniff", true)
+			.build();*/
 	public TransportClient esClient = new PreBuiltTransportClient(settings);
 
 	public ElasticsearchUtils() {
 		try {
-			/*
-			 * this.esClient .addTransportAddress(new
-			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.69")
-			 * , 9300)) .addTransportAddress(new
-			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.70")
-			 * , 9300)) .addTransportAddress(new
-			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.71")
-			 * , 9300)) .addTransportAddress(new
-			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.72")
-			 * , 9300)) .addTransportAddress(new
-			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.73")
-			 * , 9300)) .addTransportAddress(new
-			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.74")
-			 * , 9300)) .addTransportAddress(new
-			 * InetSocketTransportAddress(InetAddress.getByName("10.240.152.75")
-			 * , 9300));
-			 */
+			 /*this.esClient .addTransportAddress(new
+			 InetSocketTransportAddress(InetAddress.getByName("10.240.152.69")
+			  , 9300)) .addTransportAddress(new
+			  InetSocketTransportAddress(InetAddress.getByName("10.240.152.70")
+			  , 9300)) .addTransportAddress(new
+			  InetSocketTransportAddress(InetAddress.getByName("10.240.152.71")
+			  , 9300)) .addTransportAddress(new
+			  InetSocketTransportAddress(InetAddress.getByName("10.240.152.72")
+			  , 9300)) .addTransportAddress(new
+			  InetSocketTransportAddress(InetAddress.getByName("10.240.152.73")
+			  , 9300)) .addTransportAddress(new
+			  InetSocketTransportAddress(InetAddress.getByName("10.240.152.74")
+			  , 9300)) .addTransportAddress(new
+			  InetSocketTransportAddress(InetAddress.getByName("10.240.152.75")
+			  , 9300));*/
 			this.esClient
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.146"), 9300))
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.147"), 9300))

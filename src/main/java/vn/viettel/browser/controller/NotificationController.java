@@ -13,20 +13,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import vn.viettel.browser.Application;
-import vn.viettel.browser.service.MultipleConsumersSendNotiService;
+import vn.viettel.browser.service.ProducerPutMessKafkaNotiService;
 
 @RestController
 @RequestMapping("/user")
 public class NotificationController {
 	@Resource
-	private MultipleConsumersSendNotiService multipleConsumersSendNotiService;
+	private ProducerPutMessKafkaNotiService producerPutMessKafkaNotiService;
 
 	@CrossOrigin
 	@RequestMapping(value = "/send_mess", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public String sendNotifificationByCate(@RequestBody String notification) throws Exception {
 		System.out.println("@RequestBody : " + notification);
-		return multipleConsumersSendNotiService.SendMess(notification, 0);
+		return producerPutMessKafkaNotiService.SendMess(notification, 0);
 	}
 
 	@CrossOrigin
@@ -45,9 +45,9 @@ public class NotificationController {
 		System.out.println("@RequestBody : " + notification);
 		JSONObject mess = new JSONObject(notification);
 		if (mess.has("test")) {
-			return multipleConsumersSendNotiService.SendMess(notification, 4);
+			return producerPutMessKafkaNotiService.SendMess(notification, 4);
 		} else {
-			return multipleConsumersSendNotiService.SendMess(notification, 1);
+			return producerPutMessKafkaNotiService.SendMess(notification, 1);
 		}
 	}
 
@@ -103,13 +103,13 @@ public class NotificationController {
 	@RequestMapping(value = "/get_number_deviceby_config_cate", method = RequestMethod.GET, produces = "application/json")
 	public int getTotalDevicesCateByConfig(@RequestParam(value = "inputSearch", defaultValue = "*") String inputSearch)
 			throws org.json.simple.parser.ParseException, JSONException {
-		return MultipleConsumersSendNotiService.getTotalDevicesByConfigCate(new JSONObject(inputSearch));
+		return ProducerPutMessKafkaNotiService.getTotalDevicesByConfigCate(new JSONObject(inputSearch));
 	}
 
 	@CrossOrigin
 	@RequestMapping(value = "/get_number_deviceby_config", method = RequestMethod.GET, produces = "application/json")
 	public int getTotalDevicesConfig(@RequestParam(value = "inputSearch", defaultValue = "*") String inputSearch)
 			throws org.json.simple.parser.ParseException, JSONException {
-		return MultipleConsumersSendNotiService.getTotalDevicesByConfig(new JSONObject(inputSearch));
+		return ProducerPutMessKafkaNotiService.getTotalDevicesByConfig(new JSONObject(inputSearch));
 	}
 }
