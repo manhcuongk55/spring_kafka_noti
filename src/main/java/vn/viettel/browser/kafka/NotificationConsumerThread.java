@@ -23,7 +23,6 @@ public class NotificationConsumerThread implements Runnable {
 	public void run() {
 		while (true) {
 			ConsumerRecords<String, String> records = consumer.poll(100);
-			//ConsumerRecords<String, String> records = consumer.poll(100);
 			for (ConsumerRecord<String, String> record : records) {
 				String key = record.value();
 				System.out.println("key...." + key);

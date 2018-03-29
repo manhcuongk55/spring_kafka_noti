@@ -93,8 +93,9 @@ public final class ProducerPutMessKafkaNotiService {
             if (messJson.getString("appIosVersion").trim().equals("[-1]")) {
                 appVersion = null;
             } else if (messJson.getString("appIosVersion").trim().equals("[0]")) {
-                System.out.println("abcxhusdbfj");
                 appVersion = "*";
+            } else {
+                appVersion = HibernateUtils.getVersionIosAppFromKeyInDB(messJson.getString("appIosVersion"));
             }
 
         } else if (messJson.getString("appAndroidVersion").trim().equals("[0]")) {
@@ -119,6 +120,8 @@ public final class ProducerPutMessKafkaNotiService {
                 deviceVersion = null;
             } else if (messJson.getString("deviceIosVersion").trim().equals("[0]")) {
                 deviceVersion = "*";
+            } else {
+                deviceVersion = HibernateUtils.getVersionIosDeviceFromKeyInDB(messJson.getString("deviceIosVersion"));
             }
 
         } else if (messJson.getString("deviceAndroidVersion").trim().equals("[0]")) {
@@ -144,7 +147,6 @@ public final class ProducerPutMessKafkaNotiService {
             input.put("deviceVersion", deviceVersion);
         }
         input.put("deviceType", deviceType);
-
         return input;
     }
 
@@ -169,11 +171,13 @@ public final class ProducerPutMessKafkaNotiService {
             categoryId = messJson.getString("category");
         }
         if (typeMess == 0) {
+
             resultsAndroid = JSONUtils.createJSonForAndroidNotification(mess);
             resultsIos = JSONUtils.createJSonForIosNotification(mess);
             messJson = new JSONObject(mess);
             idJob = messJson.getString("articleId");
             categoryId = "categoryId:" + messJson.getString("category");
+
             totalCount = Application.elasticsearchUtils.getTotalDeviceByCategoryId(inputSearchListDevices, categoryId);
             if (totalCount == 0) {
                 info.put("mess", messJson);
@@ -251,12 +255,14 @@ public final class ProducerPutMessKafkaNotiService {
             resultsIos = JSONUtils.createJSonForIosNotification(mess);
             messJson = new JSONObject(mess);
             idJob = messJson.getString("articleId");
+
             totalCount = ProductionConfig.TestFireBase.length;
             if (totalCount == 0) {
                 info.put("mess", messJson);
                 info.put("totalCount_devices", totalCount);
                 return info.toString();
             }
+            data.put("jobId", idJob);
             Application.jedisUtils.set("sent" + idJob, 0 + "");
             Application.jedisUtils.set("received" + idJob, 0 + "");
             Application.jedisUtils.set("sent_total" + idJob, 0 + "_" + totalCount);
@@ -265,6 +271,27 @@ public final class ProducerPutMessKafkaNotiService {
             resultsAndroid.put("idJob", idJob);
             resultsAndroid.put("totalCount", totalCount);
             sendNotiToDeviceTest(ProductionConfig.TestFireBase, resultsIos, resultsAndroid);
+        } else if (typeMess == 5) {
+            String[] listDevices = new String[0];
+            messJson = new JSONObject(mess);
+            data.put("content", messJson.getString("content"));
+            data.put("title", messJson.getString("title"));
+            data.put("type", messJson.getString("type"));
+            idJob = messJson.getString("jobId");
+            data.put("jobId", idJob);
+            String listTestDevices = HibernateUtils.getListTestDevices();
+            if (listTestDevices.contains(",") && listTestDevices.length() > 1) {
+                listDevices = listTestDevices.split(",");
+            }
+
+            Application.jedisUtils.set("sent" + idJob, 0 + "");
+            Application.jedisUtils.set("received" + idJob, 0 + "");
+            Application.jedisUtils.set("sent_total" + idJob, 0 + "_" + totalCount);
+            results.put("idJob", idJob);
+            results.put("totalCount", listDevices.length);
+
+            getAllTestDevicesToSendMessageBox(listDevices, results, data, notification, messJson);
+            //sendNotiToDeviceTest(ProductionConfig.TestFireBase, resultsIos, resultsAndroid);
         }
         info.put("mess", messJson);
         info.put("totalCount_devices", totalCount);
@@ -283,10 +310,8 @@ public final class ProducerPutMessKafkaNotiService {
             e2.printStackTrace();
         }
         Iterator<?> keys = input.keys();
-
         while (keys.hasNext()) {
             String key = (String) keys.next();
-            System.out.println("key ............. " + key);
             JSONObject obj = null;
             try {
                 obj = (JSONObject) input.get(key);
@@ -295,6 +320,7 @@ public final class ProducerPutMessKafkaNotiService {
                 e1.printStackTrace();
             }
             if (obj.has(categoryId)) {
+                System.out.println("==============>Send to: " +key);
                 if (key.contains("ios")) {
                     key.replace("ios", "");
                     resultsIos.put("to", key);
@@ -345,23 +371,33 @@ public final class ProducerPutMessKafkaNotiService {
 
     public void sendNotiToDeviceTest(String[] listDevices, JSONObject resultsIos, JSONObject resultsAndroid)
             throws Exception {
+        String listTestDevices = HibernateUtils.getListTestDevices();
+        if (listTestDevices.contains(",") && listTestDevices.length() > 1) {
+            listDevices = listTestDevices.split(",");
+        }
         for (int i = 0; i < listDevices.length; i++) {
             String key = listDevices[i];
             if (key.contains("ios")) {
+                System.out.println("Send to: " + key);
                 key.replace("ios", "");
                 resultsIos.put("to", key);
-                System.out.println("resultsIos...." + i + "  " + resultsIos);
                 ProducerRecord<String, String> record = new ProducerRecord<String, String>(Application.topic, resultsIos.toString());
-                Application.producer.send(record);
+                try {
+                    Application.producer.send(record);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } else {
+                System.out.println("Send to: " + key);
                 resultsAndroid.put("to", key);
-                System.out.println("resultsAndroid...:" + i + "  " + resultsAndroid);
                 ProducerRecord<String, String> record = new ProducerRecord<String, String>(Application.topic, resultsAndroid.toString());
-                Application.producer.send(record);
+                try {
+                    Application.producer.send(record);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-
         }
-
     }
 
     public void getListDeviceToSendMessByConfig(JSONObject inputSearch, JSONObject results, JSONObject data,
@@ -412,6 +448,37 @@ public final class ProducerPutMessKafkaNotiService {
         while (keys.hasNext()) {
             String key = (String) keys.next();
             if (key.contains("ios")) {
+                key.replace("ios", "");
+                results.put("data", data);
+                notification.put("body", messJson.getString("title"));
+                // notification.put("badge",0);
+                notification.put("sound", "default");
+                results.put("notification", notification);
+                results.put("mutable_content", true);
+                results.put("to", key);
+                ProducerRecord<String, String> record = new ProducerRecord<String, String>(Application.topic, results.toString());
+                Application.producer.send(record);
+            } else {
+                results.put("data", data);
+                results.put("to", key);
+                ProducerRecord<String, String> record = new ProducerRecord<String, String>(Application.topic, results.toString());
+                Application.producer.send(record);
+            }
+
+
+        }
+
+    }
+
+    public void getAllTestDevicesToSendMessageBox(String[] listDevices, JSONObject results1, JSONObject data,
+                                               JSONObject notification, JSONObject messJson) throws JSONException {
+
+        for (String key : listDevices) {
+            JSONObject results  = new JSONObject();
+            results.put("idJob", results1.get("idJob") != null ?results1.get("idJob"): "" );
+            results.put("totalCount", results1.get("totalCount") != null ? results1.get("totalCount"): "");
+            System.out.println(key);
+            if (key.startsWith("ios")) {
                 key.replace("ios", "");
                 results.put("data", data);
                 notification.put("body", messJson.getString("title"));

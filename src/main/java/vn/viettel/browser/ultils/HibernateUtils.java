@@ -10,10 +10,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.query.Query;
 import org.hibernate.service.ServiceRegistry;
 
-import vn.viettel.browser.model.AppAndroidVersion;
-import vn.viettel.browser.model.AppIosVersion;
-import vn.viettel.browser.model.DeviceAndroidVersion;
-import vn.viettel.browser.model.DeviceIosVersion;
+import vn.viettel.browser.model.*;
 
 public class HibernateUtils {
 
@@ -176,6 +173,42 @@ public class HibernateUtils {
 			List<AppIosVersion> values = query.getResultList();
 			for (AppIosVersion emp : values) {
 				result = result + emp.getName() + ",";
+
+			}
+			if(result.length() > 1){
+				result = result.substring(0, result.length() - 1);
+			}
+			// Commit dữ liệu
+			session.getTransaction().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			// Rollback trong trường hợp có lỗi xẩy ra.
+			session.getTransaction().rollback();
+		}
+		return result;
+	}
+
+	public static String getListTestDevices() {
+		SessionFactory factory = HibernateUtils.getSessionFactory();
+		Session session = factory.getCurrentSession();
+		String result = "";
+		try {
+			// Tất cả các lệnh hành động với DB thông qua Hibernate
+			// đều phải nằm trong 1 giao dịch (Transaction)
+			// Bắt đầu giao dịch
+			session.getTransaction().begin();
+
+			// Tạo một câu lệnh HQL query object.
+			// Tương đương với Native SQL:
+			// Select e.* from EMPLOYEE e order by e.EMP_NAME, e.EMP_NO
+
+			String sql = "Select e from " + TestDevices.class.getName() + " e ";
+
+			Query<TestDevices> query = session.createQuery(sql);
+			// Tạo đối tượng Query.
+			List<TestDevices> values = query.getResultList();
+			for (TestDevices emp : values) {
+				result = result + emp.getFirebase_id() + ",";
 
 			}
 			if(result.length() > 1){

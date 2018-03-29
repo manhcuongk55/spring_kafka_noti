@@ -22,6 +22,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,15 +39,21 @@ public class ElasticsearchUtils {
 	private static final String EMPTY_STRING = "";
 	private static final String CATEGORY_FILTER_FUNCTION = "postListArticlesByCategor";
 	private static final String LOGGING_INDEX = "browser_logging_dev";
+	//private static final String LOGGING_INDEX = "browser_logging_v2";
 	private static final String DEVICE_NOTIFICATION_KEY = "device_id";
 	private static final String FILTER_TERM = "parameters:\"size: 20,from: 0\"";
 	private static final String START_DATE = "2017-05-17T00:00:00";
 	private static final int MAX_DEVICES = 1000000;
+	private static final String ES_USER_NAME = "elastic";
+	private static final String ES_PASSWORD = "SFive_19**";
+
 	static Settings settings = Settings.builder().put("cluster.name", "browserlabs").put("client.transport.sniff", true)
 			.build();
-	/*static Settings settings = Settings.builder().put("cluster.name", "sfive").put("client.transport.sniff", true)
+	/*static Settings settings = Settings.builder().put("cluster.name", "sfive")
+			.put("client.transport.sniff", true)
+			.put("xpack.security.user", ES_USER_NAME + ":" + ES_PASSWORD)
 			.build();*/
-	public TransportClient esClient = new PreBuiltTransportClient(settings);
+	public TransportClient esClient = new PreBuiltXPackTransportClient(settings);
 
 	public ElasticsearchUtils() {
 		try {
@@ -67,14 +74,7 @@ public class ElasticsearchUtils {
 			  , 9300));*/
 			this.esClient
 					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.146"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.147"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.148"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.149"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.150"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.151"), 9300));
-			/*this.esClient
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.69"), 9300))
-					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.70"), 9300));*/
+					.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("10.240.152.149"), 9300));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -103,9 +103,6 @@ public class ElasticsearchUtils {
 		}
 		return boolQuery;
 	}
-
-	// input: {"function.keyword" : "postListArticlesByCategor", "deviceType" :
-	// device, "appVersion" : appVersion}
 
 	public JSONObject getListDeviceIdsFromAllCategories(JSONObject input) throws JSONException {
 		org.json.JSONObject data = new org.json.JSONObject();
@@ -144,8 +141,9 @@ public class ElasticsearchUtils {
 						String keyName = (String) it.next();
 						if (val.getLong(keyName) > maxValue) {
 							JSONObject obj = new JSONObject();
-							obj.put(keyName.replace(" ", ""), val.getLong(keyName));
-							rows.put(k, obj);
+							obj.put(keyName.replace(" ", "")
+									.replace("]",""), val.getLong(keyName));
+							if (!rows.has(k)) {rows.put(k, obj);}
 							maxValue = val.getLong(keyName);
 						}
 					}
@@ -185,7 +183,7 @@ public class ElasticsearchUtils {
 			Terms agg = response.getAggregations().get(DEVICE_NOTIFICATION_KEY);
 			Collection<Terms.Bucket> buckets = agg.getBuckets();
 			for (Terms.Bucket b : buckets) {
-				if (b.getDocCount() != 0 && !b.getKeyAsString().equals("undefined")) {
+				if (b.getDocCount() != 0 && !b.getKeyAsString().equals("undefined") && !data.has(b.getKeyAsString())) {
 					data.put(b.getKeyAsString(), b.getDocCount());
 				}
 			}
@@ -343,6 +341,7 @@ public class ElasticsearchUtils {
 
 	public int getTotalDeviceByCategoryId(JSONObject inputSearch, String categoryId) throws JSONException {
 		int totalDevice = 0;
+		//System.out.println(inputSearch);
 		try {
 			JSONObject input = (JSONObject) getListDeviceIdsFromAllCategories(inputSearch).get("data");
 			Iterator<?> keys = input.keys();
@@ -382,6 +381,7 @@ public class ElasticsearchUtils {
 		inputSearch.put("device", device);
 		ArrayList<String> data = new ArrayList<>();
 		String categoryId = "categoryId:" + id;
+
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 
@@ -394,6 +394,7 @@ public class ElasticsearchUtils {
 			while (keys.hasNext()) {
 				String key = (String) keys.next();
 				JSONObject obj = (JSONObject) input.get(key);
+				System.out.println(key + "..........." + obj);
 				if (obj.has(categoryId)) {
 					data.add(key);
 					total++;

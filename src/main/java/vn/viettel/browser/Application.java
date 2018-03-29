@@ -22,9 +22,8 @@ import vn.viettel.browser.ultils.JedisUtils;
 @Configuration
 @EnableCaching
 public class Application {
-	//public static final String brokers = "10.240.152.11:6667";
-	public static final String brokers = "lab04:6667";
-
+	//public static final String brokers = "10.240.152.11:6667,10.240.152.12:6667,10.240.152.13:6667,10.240.152.14:6667";
+	public static final String brokers = "lab02:6667,lab06:6667";
 	public static final String groupId 	= "group01";
 	public static final String topic 	= "notification";
 	public static final int numberOfConsumer = 100;
@@ -61,6 +60,7 @@ public class Application {
 	private static Properties createProducerConfig(String brokers) {
 		Properties props = new Properties();
 		props.put("bootstrap.servers", brokers);
+		props.put("acks", "all");
 		/*props.put("acks", "all");
 		props.put("retries", 0);
 		props.put("metadata.fetch.timeout.ms", "3000");
