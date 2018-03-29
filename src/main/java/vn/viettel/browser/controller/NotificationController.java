@@ -42,7 +42,6 @@ public class NotificationController {
 	@RequestMapping(value = "/send_mess_all", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public String sendNotifiToAll(@RequestBody String notification) throws Exception {
-		System.out.println("@RequestBody : " + notification);
 		JSONObject mess = new JSONObject(notification);
 		if (mess.has("test")) {
 			return producerPutMessKafkaNotiService.SendMess(notification, 4);
@@ -65,6 +64,7 @@ public class NotificationController {
 			@RequestParam(value = "size", defaultValue = "20") String size,
 			@RequestParam(value = "device", defaultValue = "*") String device)
 			throws org.json.simple.parser.ParseException, JSONException {
+		//System.out.println("============>Categoryid : " + id);
 		return Application.elasticsearchUtils.getListDeviceIdsByCategoryId(id, from, size, device).toString();
 	}
 

@@ -40,7 +40,7 @@ public class MessageBoxController {
 	@RequestMapping(value = "/send_mess_box", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public String sendMess(@RequestBody String message) throws Exception {
-		System.out.println("@RequestBody : " + message);
+		//System.out.println("@RequestBody : " + message);
 		return producerPutMessKafkaNotiService.SendMess(message, 2);
 
 	}
@@ -49,8 +49,14 @@ public class MessageBoxController {
 	@RequestMapping(value = "/send_mess_box_all", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public String sendMessToAll(@RequestBody String message) throws Exception {
-		System.out.println("@RequestBody : " + message);
 		return producerPutMessKafkaNotiService.SendMess(message, 3);
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/send_mess_box_test", method = RequestMethod.POST, produces = "application/json")
+	@ResponseBody
+	public String sendMessToTestDevice(@RequestBody String message) throws Exception {
+		return producerPutMessKafkaNotiService.SendMess(message, 5);
 	}
 
 }

@@ -49,5 +49,6 @@
         <mapping class="vn.viettel.browser.model.AppIosVersion"/>
         <mapping class="vn.viettel.browser.model.DeviceAndroidVersion"/>
         <mapping class="vn.viettel.browser.model.AppAndroidVersion"/>
+        <mapping class="vn.viettel.browser.model.TestDevices"/>
     </session-factory>
 </hibernate-configuration>
